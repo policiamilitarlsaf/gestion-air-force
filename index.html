@@ -116,7 +116,7 @@
         }
 
         try {
-            const response = await fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec?email=' + encodeURIComponent(email) + '&pass=' + encodeURIComponent(password));
+            const response = await fetch('https://script.google.com/macros/s/AKfycbxVAj2KA2am9xVv4R0ZOvogI7yuVOQNz4BiRaxx4pXbE3Ar1yA3IRZzebD5UwFyQje3KA/exec?email=' + encodeURIComponent(email) + '&pass=' + encodeURIComponent(password));
             const data = await response.json();
 
             if (data.success) {
