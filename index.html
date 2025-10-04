@@ -5,16 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema LSAF - Fuerza Aérea</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js"></script>
+    <script src="https://apis.google.com/js/api.js"></script>
     <style>
         :root {
-            --primary: #1a365d;
-            --secondary: #2d3748;
-            --accent: #e53e3e;
-            --light: #f7fafc;
-            --dark: #2d3748;
-            --success: #38a169;
-            --warning: #dd6b20;
-            --danger: #e53e3e;
+            --primary: #003366;
+            --secondary: #990000;
+            --accent: #CC9900;
+            --light: #F0F0F0;
+            --dark: #001a33;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
         }
         
         * {
@@ -40,18 +42,25 @@
             background: var(--primary);
             color: white;
             transition: all 0.3s;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            z-index: 1000;
         }
         
         .sidebar-header {
             padding: 20px;
-            background: var(--secondary);
+            background: var(--dark);
             text-align: center;
+            border-bottom: 2px solid var(--accent);
         }
         
         .sidebar-header h2 {
             font-size: 1.5rem;
             margin-bottom: 5px;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.8rem;
+            opacity: 0.8;
         }
         
         .sidebar-menu {
@@ -76,13 +85,14 @@
         }
         
         .sidebar-menu a:hover, .sidebar-menu a.active {
-            background: rgba(255, 255, 255, 0.1);
+            background: var(--dark);
             border-left: 4px solid var(--accent);
         }
         
         .sidebar-menu i {
             margin-right: 10px;
-            font-size: 1.2rem;
+            width: 20px;
+            text-align: center;
         }
         
         /* Main Content */
@@ -92,13 +102,14 @@
             flex-direction: column;
         }
         
-        .header {
+        .top-nav {
             background: white;
-            padding: 15px 30px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            z-index: 999;
         }
         
         .user-info {
@@ -106,32 +117,152 @@
             align-items: center;
         }
         
-        .user-info img {
+        .user-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-right: 10px;
+            font-weight: bold;
         }
         
         .content {
-            padding: 30px;
+            padding: 25px;
             flex: 1;
             overflow-y: auto;
+        }
+        
+        /* Login Page */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--dark) 100%);
+        }
+        
+        .login-box {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .login-header p {
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0,51,102,0.1);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: var(--dark);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .btn-success {
+            background: var(--success);
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #545b62;
         }
         
         /* Cards */
         .card {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             margin-bottom: 20px;
             overflow: hidden;
         }
         
         .card-header {
             padding: 15px 20px;
-            background: var(--primary);
-            color: white;
+            background: var(--light);
+            border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -141,79 +272,12 @@
             padding: 20px;
         }
         
-        /* Forms */
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
-        }
-        
-        .form-row {
+        .card-footer {
+            padding: 15px 20px;
+            background: var(--light);
+            border-top: 1px solid #eee;
             display: flex;
-            gap: 15px;
-        }
-        
-        .form-row .form-group {
-            flex: 1;
-        }
-        
-        /* Buttons */
-        .btn {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .btn i {
-            margin-right: 5px;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-        
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-        
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-        
-        .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
-        }
-        
-        .btn-group {
-            display: flex;
-            gap: 10px;
+            justify-content: flex-end;
         }
         
         /* Tables */
@@ -225,105 +289,94 @@
         .table th, .table td {
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        .table th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-        
-        .table tr:hover {
-            background: #f8f9fa;
-        }
-        
-        /* Login */
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-        }
-        
-        .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-        }
-        
-        .login-logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .login-logo h1 {
-            color: var(--primary);
-            font-size: 2rem;
-        }
-        
-        /* Pilot List */
-        .pilot-card {
-            display: flex;
-            align-items: center;
-            padding: 15px;
             border-bottom: 1px solid #eee;
         }
         
-        .pilot-card:last-child {
-            border-bottom: none;
+        .table th {
+            background: var(--light);
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        /* Grid */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .col {
+            flex: 1;
+            padding: 0 10px;
+        }
+        
+        .col-3 {
+            flex: 0 0 25%;
+            max-width: 25%;
+            padding: 0 10px;
+        }
+        
+        .col-4 {
+            flex: 0 0 33.333333%;
+            max-width: 33.333333%;
+            padding: 0 10px;
+        }
+        
+        .col-6 {
+            flex: 0 0 50%;
+            max-width: 50%;
+            padding: 0 10px;
+        }
+        
+        /* Pilot Card */
+        .pilot-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            overflow: hidden;
+            display: flex;
+            transition: all 0.3s;
+        }
+        
+        .pilot-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .pilot-rank {
-            width: 50px;
-            height: 50px;
-            margin-right: 15px;
+            width: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f0f0f0;
-            border-radius: 50%;
+            background: var(--light);
+            padding: 15px;
+        }
+        
+        .pilot-rank img {
+            max-width: 100%;
+            height: auto;
         }
         
         .pilot-info {
             flex: 1;
+            padding: 15px;
         }
         
         .pilot-name {
+            font-size: 1.2rem;
             font-weight: 600;
-            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: var(--primary);
         }
         
         .pilot-nuim {
-            color: #666;
             font-size: 0.9rem;
-        }
-        
-        /* Badges */
-        .badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-        
-        .badge-success {
-            background: #e6fffa;
-            color: var(--success);
-        }
-        
-        .badge-danger {
-            background: #fed7d7;
-            color: var(--danger);
-        }
-        
-        .badge-warning {
-            background: #feebc8;
-            color: var(--warning);
+            color: #666;
         }
         
         /* Modal */
@@ -334,23 +387,28 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
             justify-content: center;
             align-items: center;
         }
         
+        .modal.show {
+            display: flex;
+        }
+        
         .modal-content {
             background: white;
-            border-radius: 8px;
-            width: 90%;
+            border-radius: 10px;
+            width: 100%;
             max-width: 600px;
             max-height: 90vh;
             overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         
         .modal-header {
-            padding: 15px 20px;
+            padding: 20px;
             border-bottom: 1px solid #eee;
             display: flex;
             justify-content: space-between;
@@ -366,7 +424,6 @@
             border-top: 1px solid #eee;
             display: flex;
             justify-content: flex-end;
-            gap: 10px;
         }
         
         .close {
@@ -374,51 +431,50 @@
             border: none;
             font-size: 1.5rem;
             cursor: pointer;
-        }
-        
-        /* Aircraft Grid */
-        .aircraft-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        
-        .aircraft-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
-        }
-        
-        .aircraft-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .aircraft-image {
-            height: 150px;
-            background: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: #999;
         }
         
-        .aircraft-info {
-            padding: 15px;
+        .close:hover {
+            color: #333;
         }
         
-        .aircraft-callsign {
-            font-weight: 600;
-            margin-bottom: 5px;
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
         }
         
-        .aircraft-model {
-            color: #666;
-            font-size: 0.9rem;
+        .badge-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-danger {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-info {
+            background: #d1ecf1;
+            color: #0c5460;
         }
         
         /* Responsive */
+        @media (max-width: 992px) {
+            .col-4 {
+                flex: 0 0 50%;
+                max-width: 50%;
+            }
+        }
+        
         @media (max-width: 768px) {
             .container {
                 flex-direction: column;
@@ -429,10 +485,46 @@
                 height: auto;
             }
             
-            .form-row {
-                flex-direction: column;
-                gap: 0;
+            .col-4, .col-6 {
+                flex: 0 0 100%;
+                max-width: 100%;
             }
+        }
+        
+        /* Loading */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0,0,0,0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: #ccc;
         }
     </style>
 </head>
@@ -440,31 +532,26 @@
     <!-- Login View -->
     <div id="loginView" class="login-container">
         <div class="login-box">
-            <div class="login-logo">
+            <div class="login-header">
                 <h1><i class="fas fa-plane"></i> LSAF</h1>
                 <p>Sistema de Gestión de la Fuerza Aérea</p>
             </div>
             <form id="loginForm">
                 <div class="form-group">
-                    <label for="username">Usuario</label>
-                    <input type="text" id="username" required>
+                    <label for="loginEmail">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="nombre_apellido@lsaf.gov.us" required>
                 </div>
                 <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" id="password" required>
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Contraseña" required>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
-                </button>
+                <button type="submit" class="btn btn-block">Iniciar Sesión</button>
             </form>
-            <div style="text-align: center; margin-top: 20px;">
-                <p>Usuario demo: <strong>admin</strong></p>
-                <p>Contraseña demo: <strong>lsaf2024</strong></p>
-            </div>
+            <div id="loginMessage" style="margin-top: 15px; color: var(--danger); display: none;"></div>
         </div>
     </div>
-
-    <!-- Main App -->
+    
+    <!-- Main App View -->
     <div id="appView" class="container" style="display: none;">
         <!-- Sidebar -->
         <div class="sidebar">
@@ -474,194 +561,133 @@
             </div>
             <div class="sidebar-menu">
                 <ul>
-                    <li><a href="#" class="active" data-view="pilotsView"><i class="fas fa-users"></i> Pilotos</a></li>
-                    <li><a href="#" data-view="aircraftView"><i class="fas fa-fighter-jet"></i> Aeronaves</a></li>
-                    <li><a href="#" data-view="flightLogsView"><i class="fas fa-book"></i> Libros de Vuelo</a></li>
-                    <li><a href="#" data-view="requestsView"><i class="fas fa-file-alt"></i> Solicitudes</a></li>
-                    <li><a href="#" data-view="summaryView"><i class="fas fa-chart-bar"></i> Resumen</a></li>
-                    <li><a href="#" data-view="ranksView"><i class="fas fa-star"></i> Rangos</a></li>
+                    <li><a href="#" class="active" data-view="pilotos"><i class="fas fa-users"></i> Pilotos</a></li>
+                    <li><a href="#" data-view="aeronaves"><i class="fas fa-fighter-jet"></i> Aeronaves</a></li>
+                    <li><a href="#" data-view="libros"><i class="fas fa-book"></i> Libros de Vuelo</a></li>
+                    <li><a href="#" data-view="solicitudes"><i class="fas fa-file-alt"></i> Solicitudes</a></li>
+                    <li><a href="#" data-view="resumen"><i class="fas fa-chart-bar"></i> Resumen</a></li>
+                    <li><a href="#" data-view="rangos"><i class="fas fa-star"></i> Rangos</a></li>
                     <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
                 </ul>
             </div>
         </div>
-
+        
         <!-- Main Content -->
         <div class="main-content">
-            <div class="header">
-                <h1 id="pageTitle">Pilotos</h1>
+            <div class="top-nav">
+                <h3 id="currentViewTitle">Pilotos</h3>
                 <div class="user-info">
-                    <img src="https://ui-avatars.com/api/?name=Admin+LSAF&background=0D8ABC&color=fff" alt="Usuario">
+                    <div class="user-avatar" id="userAvatar">DT</div>
                     <div>
-                        <div id="userName">Administrador</div>
-                        <div style="font-size: 0.8rem; color: #666;">Rango: General</div>
+                        <div id="userName">DAVID TORO</div>
+                        <div id="userRank" style="font-size: 0.8rem; color: #666;">TENIENTE CORONEL O-5</div>
                     </div>
                 </div>
             </div>
-
+            
             <div class="content">
-                <!-- Pilots View -->
-                <div id="pilotsView" class="view">
+                <!-- Pilotos View -->
+                <div id="pilotosView" class="view active">
                     <div class="card">
                         <div class="card-header">
-                            <h3>Lista de Pilotos</h3>
-                            <button class="btn btn-primary" id="addPilotBtn">
-                                <i class="fas fa-plus"></i> AGREGAR PILOTO
-                            </button>
+                            <h4>Lista de Pilotos</h4>
+                            <button class="btn" id="addPilotoBtn"><i class="fas fa-plus"></i> Agregar Piloto</button>
                         </div>
                         <div class="card-body">
-                            <div id="pilotsList">
-                                <!-- Pilots will be loaded here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Aircraft View -->
-                <div id="aircraftView" class="view" style="display: none;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Aeronaves</h3>
-                            <button class="btn btn-primary" id="addAircraftBtn">
-                                <i class="fas fa-plus"></i> AGREGAR AERONAVE
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div class="aircraft-grid" id="aircraftList">
-                                <!-- Aircraft will be loaded here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Flight Logs View -->
-                <div id="flightLogsView" class="view" style="display: none;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Libros de Vuelo</h3>
-                            <button class="btn btn-primary" id="addFlightLogBtn">
-                                <i class="fas fa-plus"></i> REGISTRAR LIBRO DE VUELO
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Libro de Vuelo</th>
-                                        <th>Aeronave</th>
-                                        <th>Fecha</th>
-                                        <th>Piloto</th>
-                                        <th>Tiempo Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="flightLogsTable">
-                                    <!-- Flight logs will be loaded here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Requests View -->
-                <div id="requestsView" class="view" style="display: none;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Solicitudes de Certificación</h3>
-                            <button class="btn btn-primary" id="addRequestBtn">
-                                <i class="fas fa-plus"></i> SOLICITAR CERTIFICACIÓN
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Solicitud</th>
-                                        <th>Piloto</th>
-                                        <th>Aeronave</th>
-                                        <th>Fecha</th>
-                                        <th>Disponibilidad</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="requestsTable">
-                                    <!-- Requests will be loaded here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Summary View -->
-                <div id="summaryView" class="view" style="display: none;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Resumen General</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Líder</label>
-                                    <input type="text" value="General John Doe" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label>Fecha de Asunción</label>
-                                    <input type="text" value="15/03/2023" readonly>
+                            <div id="pilotosList" class="row">
+                                <!-- Pilotos will be loaded here -->
+                                <div class="loading">
+                                    <div class="spinner"></div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label>Misión</label>
-                                <textarea rows="3" readonly>Proteger el espacio aéreo nacional y apoyar operaciones de defensa.</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Visión</label>
-                                <textarea rows="3" readonly>Ser la fuerza aérea más moderna y eficiente de la región.</textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>Tiempo Total de Vuelo</label>
-                                <input type="text" value="1,250 horas" readonly>
-                            </div>
-                            <h4 style="margin: 20px 0 10px;">Tiempos por Aeronave</h4>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Aeronave</th>
-                                        <th>Tiempo Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>F-16 Fighting Falcon</td>
-                                        <td>450 horas</td>
-                                    </tr>
-                                    <tr>
-                                        <td>C-130 Hercules</td>
-                                        <td>320 horas</td>
-                                    </tr>
-                                    <tr>
-                                        <td>UH-60 Black Hawk</td>
-                                        <td>280 horas</td>
-                                    </tr>
-                                    <tr>
-                                        <td>T-6 Texan II</td>
-                                        <td>200 horas</td>
-                                    </tr>
-                                </tbody>
-                            </table>
                         </div>
                     </div>
                 </div>
-
-                <!-- Ranks View -->
-                <div id="ranksView" class="view" style="display: none;">
+                
+                <!-- Aeronaves View -->
+                <div id="aeronavesView" class="view">
                     <div class="card">
                         <div class="card-header">
-                            <h3>Rangos</h3>
-                            <button class="btn btn-primary" id="addRankBtn">
-                                <i class="fas fa-plus"></i> AGREGAR RANGO
-                            </button>
+                            <h4>Lista de Aeronaves</h4>
+                            <button class="btn" id="addAeronaveBtn"><i class="fas fa-plus"></i> Agregar Aeronave</button>
                         </div>
                         <div class="card-body">
-                            <div class="aircraft-grid" id="ranksList">
-                                <!-- Ranks will be loaded here -->
+                            <div id="aeronavesList" class="row">
+                                <!-- Aeronaves will be loaded here -->
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Libros de Vuelo View -->
+                <div id="librosView" class="view">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Libros de Vuelo</h4>
+                            <button class="btn" id="addLibroBtn"><i class="fas fa-plus"></i> Registrar Libro de Vuelo</button>
+                        </div>
+                        <div class="card-body">
+                            <div id="librosList">
+                                <!-- Libros will be loaded here -->
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Solicitudes View -->
+                <div id="solicitudesView" class="view">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Solicitudes de Certificación</h4>
+                            <button class="btn" id="addSolicitudBtn"><i class="fas fa-plus"></i> Solicitar Certificación</button>
+                        </div>
+                        <div class="card-body">
+                            <div id="solicitudesList">
+                                <!-- Solicitudes will be loaded here -->
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Resumen View -->
+                <div id="resumenView" class="view">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Resumen General</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="resumenContent">
+                                <!-- Resumen will be loaded here -->
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Rangos View -->
+                <div id="rangosView" class="view">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Rangos de la Fuerza Aérea</h4>
+                            <button class="btn" id="addRangoBtn"><i class="fas fa-plus"></i> Agregar Rango</button>
+                        </div>
+                        <div class="card-body">
+                            <div id="rangosList" class="row">
+                                <!-- Rangos will be loaded here -->
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -669,45 +695,48 @@
             </div>
         </div>
     </div>
-
+    
     <!-- Modals -->
-    <!-- Add Pilot Modal -->
-    <div id="addPilotModal" class="modal">
+    
+    <!-- Add/Edit Piloto Modal -->
+    <div id="pilotoModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Agregar Piloto</h3>
+                <h4 id="pilotoModalTitle">Agregar Piloto</h4>
                 <button class="close">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="addPilotForm">
+                <form id="pilotoForm">
+                    <input type="hidden" id="pilotoId">
                     <div class="form-group">
-                        <label for="pilotName">PILOTO</label>
-                        <input type="text" id="pilotName" required>
+                        <label for="pilotoNombre">Piloto</label>
+                        <input type="text" id="pilotoNombre" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label for="pilotEmail">EMAIL</label>
-                        <input type="email" id="pilotEmail" required>
+                        <label for="pilotoEmail">Email</label>
+                        <input type="email" id="pilotoEmail" class="form-control" placeholder="nombre_apellido@lsaf.gov.us" required>
                     </div>
                     <div class="form-group">
-                        <label for="pilotNUIM">NUIM</label>
-                        <input type="text" id="pilotNUIM" required>
+                        <label for="pilotoNUIM">NUIM</label>
+                        <input type="text" id="pilotoNUIM" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label for="pilotJoinDate">FECHA DE INGRESO</label>
-                        <input type="date" id="pilotJoinDate" required>
+                        <label for="pilotoFechaIngreso">Fecha de Ingreso</label>
+                        <input type="date" id="pilotoFechaIngreso" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label for="pilotRole">ROL</label>
-                        <select id="pilotRole" required>
-                            <option value="">Seleccione un rol</option>
+                        <label for="pilotoRol">ROL</label>
+                        <select id="pilotoRol" class="form-control" required>
+                            <option value="">Seleccionar</option>
                             <option value="ADMIN">ADMIN</option>
                             <option value="INSTRUCTOR">INSTRUCTOR</option>
                             <option value="PILOTO">PILOTO</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="pilotStatus">ESTADO</label>
-                        <select id="pilotStatus" required>
+                        <label for="pilotoEstado">ESTADO</label>
+                        <select id="pilotoEstado" class="form-control" required>
+                            <option value="">Seleccionar</option>
                             <option value="ACTIVO">ACTIVO</option>
                             <option value="ARCHIVADO">ARCHIVADO</option>
                         </select>
@@ -715,830 +744,1037 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-danger" id="cancelPilotBtn">CANCELAR REGISTRO</button>
-                <button class="btn btn-success" id="savePilotBtn">GUARDAR PILOTO</button>
+                <button class="btn btn-secondary" id="cancelPilotoBtn">Cancelar</button>
+                <button class="btn" id="savePilotoBtn">Guardar Piloto</button>
             </div>
         </div>
     </div>
-
-    <!-- Add Aircraft Modal -->
-    <div id="addAircraftModal" class="modal">
+    
+    <!-- Add/Edit Aeronave Modal -->
+    <div id="aeronaveModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Agregar Aeronave</h3>
+                <h4 id="aeronaveModalTitle">Agregar Aeronave</h4>
                 <button class="close">&times;</button>
             </div>
             <div class="modal-body">
-                <form id="addAircraftForm">
+                <form id="aeronaveForm">
+                    <input type="hidden" id="aeronaveId">
                     <div class="form-group">
-                        <label for="aircraftCallsign">CALLSIGN</label>
-                        <input type="text" id="aircraftCallsign" required>
+                        <label for="aeronaveCallsing">Callsing</label>
+                        <input type="text" id="aeronaveCallsing" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label for="aircraftModel">MODELO</label>
-                        <input type="text" id="aircraftModel" required>
+                        <label for="aeronaveModelo">Modelo</label>
+                        <input type="text" id="aeronaveModelo" class="form-control" required>
                     </div>
                     <div class="form-group">
-                        <label for="aircraftImage">IMAGEN</label>
-                        <input type="file" id="aircraftImage" accept="image/jpeg, image/png">
+                        <label for="aeronaveImagen">Imagen</label>
+                        <input type="file" id="aeronaveImagen" class="form-control" accept="image/*">
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-danger" id="cancelAircraftBtn">CANCELAR</button>
-                <button class="btn btn-success" id="saveAircraftBtn">GUARDAR AERONAVE</button>
+                <button class="btn btn-secondary" id="cancelAeronaveBtn">Cancelar</button>
+                <button class="btn" id="saveAeronaveBtn">Guardar Aeronave</button>
             </div>
         </div>
     </div>
-
-    <!-- Add Flight Log Modal -->
-    <div id="addFlightLogModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Registrar Libro de Vuelo</h3>
-                <button class="close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="addFlightLogForm">
-                    <div class="form-group">
-                        <label for="flightLogNumber">LIBRO DE VUELO</label>
-                        <input type="text" id="flightLogNumber" value="FZ-00001" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="flightLogPilot">PILOTO</label>
-                        <input type="text" id="flightLogPilot" value="Administrador" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="flightLogAircraft">AERONAVE</label>
-                        <select id="flightLogAircraft" required>
-                            <option value="">Seleccione una aeronave</option>
-                            <option value="F-16">F-16 Fighting Falcon</option>
-                            <option value="C-130">C-130 Hercules</option>
-                            <option value="UH-60">UH-60 Black Hawk</option>
-                            <option value="T-6">T-6 Texan II</option>
-                        </select>
-                        <div style="margin-top: 5px;">
-                            <button type="button" class="btn btn-warning btn-sm">
-                                <i class="fas fa-certificate"></i> SOLICITAR CERTIFICACIÓN
-                            </button>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="flightLogTakeoff">HORA DESPEGUE</label>
-                            <input type="datetime-local" id="flightLogTakeoff" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="flightLogLanding">HORA ATERRIZAJE</label>
-                            <input type="datetime-local" id="flightLogLanding" required>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="flightLogTotalTime">TIEMPO TOTAL</label>
-                        <input type="text" id="flightLogTotalTime" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="flightLogRoute">RUTA</label>
-                        <input type="text" id="flightLogRoute" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="flightLogReason">MOTIVO</label>
-                        <input type="text" id="flightLogReason" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="flightLogObservations">OBSERVACIONES</label>
-                        <textarea id="flightLogObservations" rows="3"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" id="cancelFlightLogBtn">CANCELAR</button>
-                <button class="btn btn-success" id="saveFlightLogBtn">ENVIAR LIBRO DE VUELO</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Request Modal -->
-    <div id="addRequestModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Solicitar Certificación</h3>
-                <button class="close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="addRequestForm">
-                    <div class="form-group">
-                        <label for="requestNumber">SOLICITUD</label>
-                        <input type="text" id="requestNumber" value="AETC-00001" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="requestPilot">PILOTO</label>
-                        <input type="text" id="requestPilot" value="Administrador" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="requestNUIM">NUIM</label>
-                        <input type="text" id="requestNUIM" value="LSF-001" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="requestRank">RANGO</label>
-                        <input type="text" id="requestRank" value="General" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="requestDate">FECHA</label>
-                        <input type="text" id="requestDate" value="25/06/2024" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="requestAircraft">AERONAVE</label>
-                        <select id="requestAircraft" required>
-                            <option value="">Seleccione una aeronave</option>
-                            <option value="F-16">F-16 Fighting Falcon</option>
-                            <option value="C-130">C-130 Hercules</option>
-                            <option value="UH-60">UH-60 Black Hawk</option>
-                            <option value="T-6">T-6 Texan II</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="requestAvailability">DISPONIBILIDAD</label>
-                        <textarea id="requestAvailability" rows="3" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <p>Indique si está de acuerdo con la <a href="https://docs.google.com/document/d/1KatX3AWuzmWhmYO-Z-SyaedXsY6YgsgE1_tB9AcaQ4c/edit?usp=drive_link" target="_blank">CARTA DE COMPROMISO</a></p>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-success" id="agreeBtn">SI</button>
-                            <button type="button" class="btn btn-danger" id="disagreeBtn">NO</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" id="cancelRequestBtn">CANCELAR</button>
-                        <button class="btn btn-success" id="saveRequestBtn" disabled>GUARDAR</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add Rank Modal -->
-    <div id="addRankModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Agregar Rango</h3>
-                <button class="close">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="addRankForm">
-                    <div class="form-group">
-                        <label for="rankImage">IMAGEN</label>
-                        <input type="file" id="rankImage" accept="image/jpeg, image/png">
-                    </div>
-                    <div class="form-group">
-                        <label for="rankName">NOMBRE</label>
-                        <input type="text" id="rankName" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="rankScale">ESCALAFÓN</label>
-                        <input type="text" id="rankScale" required>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" id="cancelRankBtn">CANCELAR</button>
-                <button class="btn btn-success" id="saveRankBtn">GUARDAR RANGO</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Pilot Profile Modal -->
-    <div id="pilotProfileModal" class="modal">
+    
+    <!-- Piloto Profile Modal -->
+    <div id="pilotoProfileModal" class="modal">
         <div class="modal-content" style="max-width: 800px;">
             <div class="modal-header">
-                <h3>Perfil del Piloto</h3>
+                <h4 id="pilotoProfileTitle">Perfil del Piloto</h4>
                 <button class="close">&times;</button>
             </div>
             <div class="modal-body">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>PILOTO</label>
-                        <input type="text" value="John Doe" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>NUIM</label>
-                        <input type="text" value="LSF-001" readonly>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>RANGO</label>
-                        <input type="text" value="Capitán" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>EMAIL</label>
-                        <input type="text" value="john_doe@lsaf.gov.us" readonly>
-                    </div>
-                </div>
-                
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-header">
-                        <h4>FICHA DEL PILOTO</h4>
-                        <button class="btn btn-primary btn-sm">
-                            <i class="fas fa-edit"></i> EDITAR FICHA
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>FECHA DE NACIMIENTO</label>
-                                <input type="text" value="15/05/1985" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label>TIPO DE SANGRE</label>
-                                <input type="text" value="O+" readonly>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>NACIONALIDAD</label>
-                            <input type="text" value="Estadounidense" readonly>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-header">
-                        <h4>ASCENSOS Y DESCENSOS</h4>
-                        <button class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus"></i> AÑADIR ASCENSO/DESCENSO
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Rango</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>15/03/2023</td>
-                                    <td>Capitán</td>
-                                </tr>
-                                <tr>
-                                    <td>10/08/2021</td>
-                                    <td>Teniente</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-header">
-                        <h4>LIBROS DE VUELO RELACIONADOS</h4>
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Libro de Vuelo</th>
-                                    <th>Aeronave</th>
-                                    <th>Fecha</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>FZ-00015</td>
-                                    <td>F-16</td>
-                                    <td>20/06/2024</td>
-                                </tr>
-                                <tr>
-                                    <td>FZ-00012</td>
-                                    <td>C-130</td>
-                                    <td>15/05/2024</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-header">
-                        <h4>SOLICITUDES RELACIONADAS</h4>
-                    </div>
-                    <div class="card-body">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Solicitud</th>
-                                    <th>Aeronave</th>
-                                    <th>Fecha</th>
-                                    <th>Estado</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>AETC-00005</td>
-                                    <td>F-16</td>
-                                    <td>10/06/2024</td>
-                                    <td><span class="badge badge-success">Certificado</span></td>
-                                </tr>
-                                <tr>
-                                    <td>AETC-00003</td>
-                                    <td>UH-60</td>
-                                    <td>05/05/2024</td>
-                                    <td><span class="badge badge-warning">En proceso</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                
-                <div class="card" style="margin-top: 20px;">
-                    <div class="card-header">
-                        <h4>RESUMEN DE TIEMPOS</h4>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label>TIEMPO TOTAL DE VUELO</label>
-                            <input type="text" value="150 horas" readonly>
-                        </div>
-                        <h5 style="margin: 15px 0 10px;">Tiempo por Aeronave</h5>
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Aeronave</th>
-                                    <th>Tiempo Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>F-16 Fighting Falcon</td>
-                                    <td>80 horas</td>
-                                </tr>
-                                <tr>
-                                    <td>C-130 Hercules</td>
-                                    <td>40 horas</td>
-                                </tr>
-                                <tr>
-                                    <td>UH-60 Black Hawk</td>
-                                    <td>30 horas</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div id="pilotoProfileContent">
+                    <!-- Profile content will be loaded here -->
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" id="editPilotProfileBtn">
-                    <i class="fas fa-edit"></i> EDITAR PILOTO
-                </button>
+                <button class="btn" id="editPilotoProfileBtn">Editar Piloto</button>
+                <button class="btn btn-secondary" id="closeProfileBtn">Cerrar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Datos de ejemplo para la demostración
-        const demoData = {
-            pilots: [
-                { id: 1, name: "John Doe", nuim: "LSF-001", rank: "Capitán", email: "john_doe@lsaf.gov.us", status: "ACTIVO", role: "PILOTO" },
-                { id: 2, name: "Jane Smith", nuim: "LSF-002", rank: "Teniente", email: "jane_smith@lsaf.gov.us", status: "ACTIVO", role: "INSTRUCTOR" },
-                { id: 3, name: "Robert Johnson", nuim: "LSF-003", rank: "Mayor", email: "robert_johnson@lsaf.gov.us", status: "ARCHIVADO", role: "PILOTO" },
-                { id: 4, name: "Maria Garcia", nuim: "LSF-004", rank: "Coronel", email: "maria_garcia@lsaf.gov.us", status: "ACTIVO", role: "ADMIN" }
-            ],
-            aircraft: [
-                { id: 1, callsign: "FALCON01", model: "F-16 Fighting Falcon" },
-                { id: 2, callsign: "HERC01", model: "C-130 Hercules" },
-                { id: 3, callsign: "HAWK01", model: "UH-60 Black Hawk" },
-                { id: 4, callsign: "TEXAN01", model: "T-6 Texan II" }
-            ],
-            flightLogs: [
-                { id: 1, number: "FZ-00015", aircraft: "F-16", date: "20/06/2024", pilot: "John Doe", totalTime: "2.5 horas" },
-                { id: 2, number: "FZ-00014", aircraft: "C-130", date: "18/06/2024", pilot: "Jane Smith", totalTime: "4.0 horas" },
-                { id: 3, number: "FZ-00013", aircraft: "UH-60", date: "15/06/2024", pilot: "Maria Garcia", totalTime: "1.5 horas" },
-                { id: 4, number: "FZ-00012", aircraft: "T-6", date: "10/06/2024", pilot: "John Doe", totalTime: "3.0 horas" }
-            ],
-            requests: [
-                { id: 1, number: "AETC-00005", pilot: "John Doe", aircraft: "F-16", date: "10/06/2024", availability: "Lunes a Viernes 8:00-16:00", status: "Certificado" },
-                { id: 2, number: "AETC-00004", pilot: "Jane Smith", aircraft: "C-130", date: "08/06/2024", availability: "Martes y Jueves 10:00-14:00", status: "Tomada por Robert Johnson" },
-                { id: 3, number: "AETC-00003", pilot: "Robert Johnson", aircraft: "UH-60", date: "05/06/2024", availability: "Miércoles 9:00-12:00", status: "Pendiente" },
-                { id: 4, number: "AETC-00002", pilot: "Maria Garcia", aircraft: "T-6", date: "01/06/2024", availability: "Lunes a Viernes 7:00-15:00", status: "Certificado" }
-            ],
-            ranks: [
-                { id: 1, name: "General", scale: "O-10" },
-                { id: 2, name: "Coronel", scale: "O-6" },
-                { id: 3, name: "Mayor", scale: "O-4" },
-                { id: 4, name: "Capitán", scale: "O-3" },
-                { id: 5, name: "Teniente", scale: "O-2" },
-                { id: 6, name: "Subteniente", scale: "O-1" }
-            ]
-        };
-
-        // Estado de la aplicación
-        let appState = {
-            currentUser: null,
-            currentView: 'pilotsView',
-            agreedToCharter: false
-        };
-
-        // Inicialización de la aplicación
+        // Google Sheets API configuration
+        const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID'; // Replace with your actual spreadsheet ID
+        const CLIENT_ID = 'YOUR_CLIENT_ID'; // Replace with your OAuth client ID
+        const API_KEY = 'YOUR_API_KEY'; // Replace with your API key
+        const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+        
+        // App state
+        let currentUser = null;
+        let sheetsAPI = null;
+        
+        // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
-            // Configurar eventos de login
+            // Check if user is already logged in
+            const savedUser = localStorage.getItem('lsaf_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showApp();
+            }
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initialize Google Sheets API
+            initSheetsAPI();
+        });
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Login form
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             
-            // Configurar eventos de navegación
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // Navigation
             document.querySelectorAll('.sidebar-menu a[data-view]').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    const viewId = this.getAttribute('data-view');
-                    showView(viewId);
+                    const view = this.getAttribute('data-view');
+                    showView(view);
+                    
+                    // Update active link
+                    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
                 });
             });
             
-            // Configurar botón de logout
-            document.getElementById('logoutBtn').addEventListener('click', function(e) {
-                e.preventDefault();
-                logout();
-            });
+            // Pilotos buttons
+            document.getElementById('addPilotoBtn').addEventListener('click', showAddPilotoModal);
+            document.getElementById('savePilotoBtn').addEventListener('click', savePiloto);
+            document.getElementById('cancelPilotoBtn').addEventListener('click', closePilotoModal);
             
-            // Configurar botones de agregar
-            document.getElementById('addPilotBtn').addEventListener('click', () => showModal('addPilotModal'));
-            document.getElementById('addAircraftBtn').addEventListener('click', () => showModal('addAircraftModal'));
-            document.getElementById('addFlightLogBtn').addEventListener('click', () => showModal('addFlightLogModal'));
-            document.getElementById('addRequestBtn').addEventListener('click', () => showModal('addRequestModal'));
-            document.getElementById('addRankBtn').addEventListener('click', () => showModal('addRankModal'));
+            // Aeronaves buttons
+            document.getElementById('addAeronaveBtn').addEventListener('click', showAddAeronaveModal);
+            document.getElementById('saveAeronaveBtn').addEventListener('click', saveAeronave);
+            document.getElementById('cancelAeronaveBtn').addEventListener('click', closeAeronaveModal);
             
-            // Configurar botones de cerrar modal
+            // Modal close buttons
             document.querySelectorAll('.close').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    this.closest('.modal').style.display = 'none';
+                    this.closest('.modal').classList.remove('show');
                 });
             });
             
-            // Configurar botones de cancelar
-            document.getElementById('cancelPilotBtn').addEventListener('click', () => hideModal('addPilotModal'));
-            document.getElementById('cancelAircraftBtn').addEventListener('click', () => hideModal('addAircraftModal'));
-            document.getElementById('cancelFlightLogBtn').addEventListener('click', () => hideModal('addFlightLogModal'));
-            document.getElementById('cancelRequestBtn').addEventListener('click', () => hideModal('addRequestModal'));
-            document.getElementById('cancelRankBtn').addEventListener('click', () => hideModal('addRankModal'));
-            
-            // Configurar botones de guardar
-            document.getElementById('savePilotBtn').addEventListener('click', savePilot);
-            document.getElementById('saveAircraftBtn').addEventListener('click', saveAircraft);
-            document.getElementById('saveFlightLogBtn').addEventListener('click', saveFlightLog);
-            document.getElementById('saveRequestBtn').addEventListener('click', saveRequest);
-            document.getElementById('saveRankBtn').addEventListener('click', saveRank);
-            
-            // Configurar botones de acuerdo con la carta
-            document.getElementById('agreeBtn').addEventListener('click', function() {
-                appState.agreedToCharter = true;
-                document.getElementById('saveRequestBtn').disabled = false;
-                this.classList.add('btn-success');
-                document.getElementById('disagreeBtn').classList.remove('btn-danger');
+            // Close modals when clicking outside
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('show');
+                    }
+                });
             });
             
-            document.getElementById('disagreeBtn').addEventListener('click', function() {
-                appState.agreedToCharter = false;
-                document.getElementById('saveRequestBtn').disabled = true;
-                alert('Debe estar de acuerdo con la carta de compromiso');
-                this.classList.add('btn-danger');
-                document.getElementById('agreeBtn').classList.remove('btn-success');
+            // Profile modal buttons
+            document.getElementById('editPilotoProfileBtn').addEventListener('click', editPilotoProfile);
+            document.getElementById('closeProfileBtn').addEventListener('click', closePilotoProfileModal);
+        }
+        
+        // Initialize Google Sheets API
+        function initSheetsAPI() {
+            gapi.load('client:auth2', function() {
+                gapi.client.init({
+                    apiKey: API_KEY,
+                    clientId: CLIENT_ID,
+                    scope: SCOPES,
+                    discoveryDocs: ['https://sheets.googleapis.com/$discovery/rest?version=v4']
+                }).then(function() {
+                    sheetsAPI = gapi.client.sheets;
+                    console.log('Sheets API initialized');
+                }).catch(function(error) {
+                    console.error('Error initializing Sheets API:', error);
+                });
             });
-            
-            // Configurar cálculo de tiempo de vuelo
-            document.getElementById('flightLogTakeoff').addEventListener('change', calculateFlightTime);
-            document.getElementById('flightLogLanding').addEventListener('change', calculateFlightTime);
-            
-            // Cargar datos de ejemplo
-            loadPilots();
-            loadAircraft();
-            loadFlightLogs();
-            loadRequests();
-            loadRanks();
-        });
-
-        // Funciones de la aplicación
+        }
+        
+        // Handle login
         function handleLogin(e) {
             e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
             
-            // Verificación simple para demo
-            if (username === 'admin' && password === 'lsaf2024') {
-                appState.currentUser = { name: 'Administrador', role: 'ADMIN', rank: 'General' };
-                document.getElementById('loginView').style.display = 'none';
-                document.getElementById('appView').style.display = 'flex';
-                document.getElementById('userName').textContent = appState.currentUser.name;
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const messageDiv = document.getElementById('loginMessage');
+            
+            // For demo purposes, we'll use a simple validation
+            // In a real app, this would check against the database
+            if (email && password) {
+                // Simulate API call to verify credentials
+                setTimeout(() => {
+                    // For demo, accept any email with @lsaf.gov.us domain
+                    if (email.endsWith('@lsaf.gov.us')) {
+                        // Get user data from PILOTOS sheet
+                        getPilotoByEmail(email).then(piloto => {
+                            if (piloto) {
+                                currentUser = {
+                                    id: piloto.ID_PILOTO,
+                                    nombre: piloto.PILOTO,
+                                    email: piloto.EMAIL,
+                                    rango: piloto.RANGO,
+                                    nuim: piloto.NUIM,
+                                    rol: piloto.ROL,
+                                    estado: piloto.ESTADO
+                                };
+                                
+                                localStorage.setItem('lsaf_user', JSON.stringify(currentUser));
+                                showApp();
+                            } else {
+                                messageDiv.textContent = 'Usuario no encontrado en la base de datos';
+                                messageDiv.style.display = 'block';
+                            }
+                        }).catch(error => {
+                            console.error('Error fetching user:', error);
+                            messageDiv.textContent = 'Error al verificar credenciales';
+                            messageDiv.style.display = 'block';
+                        });
+                    } else {
+                        messageDiv.textContent = 'Credenciales incorrectas';
+                        messageDiv.style.display = 'block';
+                    }
+                }, 1000);
             } else {
-                alert('Usuario o contraseña incorrectos. Use admin / lsaf2024 para la demo.');
+                messageDiv.textContent = 'Por favor ingrese email y contraseña';
+                messageDiv.style.display = 'block';
             }
         }
-
-        function logout() {
-            appState.currentUser = null;
-            document.getElementById('loginView').style.display = 'flex';
+        
+        // Handle logout
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('lsaf_user');
             document.getElementById('appView').style.display = 'none';
+            document.getElementById('loginView').style.display = 'flex';
             document.getElementById('loginForm').reset();
+            document.getElementById('loginMessage').style.display = 'none';
         }
-
-        function showView(viewId) {
-            // Ocultar todas las vistas
+        
+        // Show main app
+        function showApp() {
+            document.getElementById('loginView').style.display = 'none';
+            document.getElementById('appView').style.display = 'flex';
+            
+            // Update user info in navbar
+            document.getElementById('userName').textContent = currentUser.nombre;
+            document.getElementById('userRank').textContent = currentUser.rango;
+            document.getElementById('userAvatar').textContent = 
+                currentUser.nombre.split(' ').map(n => n[0]).join('').toUpperCase();
+            
+            // Load initial data
+            loadPilotos();
+        }
+        
+        // Show specific view
+        function showView(viewName) {
+            // Hide all views
             document.querySelectorAll('.view').forEach(view => {
-                view.style.display = 'none';
+                view.classList.remove('active');
             });
             
-            // Mostrar la vista seleccionada
-            document.getElementById(viewId).style.display = 'block';
+            // Show selected view
+            document.getElementById(viewName + 'View').classList.add('active');
             
-            // Actualizar el título de la página
+            // Update view title
             const titles = {
-                'pilotsView': 'Pilotos',
-                'aircraftView': 'Aeronaves',
-                'flightLogsView': 'Libros de Vuelo',
-                'requestsView': 'Solicitudes',
-                'summaryView': 'Resumen',
-                'ranksView': 'Rangos'
+                pilotos: 'Pilotos',
+                aeronaves: 'Aeronaves',
+                libros: 'Libros de Vuelo',
+                solicitudes: 'Solicitudes',
+                resumen: 'Resumen',
+                rangos: 'Rangos'
+            };
+            document.getElementById('currentViewTitle').textContent = titles[viewName];
+            
+            // Load data for the view
+            switch(viewName) {
+                case 'pilotos':
+                    loadPilotos();
+                    break;
+                case 'aeronaves':
+                    loadAeronaves();
+                    break;
+                case 'libros':
+                    loadLibros();
+                    break;
+                case 'solicitudes':
+                    loadSolicitudes();
+                    break;
+                case 'resumen':
+                    loadResumen();
+                    break;
+                case 'rangos':
+                    loadRangos();
+                    break;
+            }
+        }
+        
+        // Load pilotos data
+        function loadPilotos() {
+            const container = document.getElementById('pilotosList');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            // In a real app, this would fetch data from Google Sheets
+            // For now, we'll simulate with demo data
+            setTimeout(() => {
+                const pilotos = [
+                    {
+                        ID_PILOTO: 'a3a04422',
+                        PILOTO: 'DAVID TORO',
+                        EMAIL: 'david_toro@lsaf.gov.us',
+                        NUIM: '10-291992',
+                        RANGO: 'TENIENTE CORONEL O-5',
+                        ROL: 'ADMIN',
+                        ESTADO: 'ACTIVO',
+                        INSIGNIA: 'RANGOS_Images/TENIENTE CORONEL O-5.IMAGEN.135800.png'
+                    },
+                    {
+                        ID_PILOTO: '6a235914',
+                        PILOTO: 'THOMAS ESTRADA',
+                        EMAIL: 'thomas_estrada@lsaf.gov.us',
+                        NUIM: '15-200623',
+                        RANGO: 'CAPITAN O-3',
+                        ROL: 'PILOTO',
+                        ESTADO: 'ACTIVO',
+                        INSIGNIA: 'RANGOS_Images/CAPITAN O-3.IMAGEN.135746.png'
+                    }
+                ];
+                
+                displayPilotos(pilotos);
+            }, 1000);
+        }
+        
+        // Display pilotos in the UI
+        function displayPilotos(pilotos) {
+            const container = document.getElementById('pilotosList');
+            
+            if (pilotos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h3>No hay pilotos registrados</h3>
+                        <p>Agrega el primer piloto haciendo clic en el botón "Agregar Piloto"</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort pilotos by rank (simplified for demo)
+            const sortedPilotos = pilotos.sort((a, b) => {
+                // This would need a more sophisticated sorting based on actual rank hierarchy
+                return a.RANGO.localeCompare(b.RANGO);
+            });
+            
+            let html = '';
+            sortedPilotos.forEach(piloto => {
+                html += `
+                    <div class="col-4">
+                        <div class="pilot-card" data-id="${piloto.ID_PILOTO}">
+                            <div class="pilot-rank">
+                                <i class="fas fa-user" style="font-size: 2rem; color: #ccc;"></i>
+                            </div>
+                            <div class="pilot-info">
+                                <div class="pilot-name">${piloto.PILOTO}</div>
+                                <div class="pilot-nuim">NUIM: ${piloto.NUIM}</div>
+                                <div style="margin-top: 10px;">
+                                    <span class="badge ${piloto.ESTADO === 'ACTIVO' ? 'badge-success' : 'badge-danger'}">${piloto.ESTADO}</span>
+                                    <span class="badge badge-info">${piloto.ROL}</span>
+                                </div>
+                                <div style="margin-top: 5px; font-size: 0.8rem; color: #666;">${piloto.RANGO}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            
+            // Add click event to pilot cards
+            document.querySelectorAll('.pilot-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const pilotoId = this.getAttribute('data-id');
+                    showPilotoProfile(pilotoId);
+                });
+            });
+        }
+        
+        // Load aeronaves data
+        function loadAeronaves() {
+            const container = document.getElementById('aeronavesList');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            // In a real app, this would fetch data from Google Sheets
+            setTimeout(() => {
+                const aeronaves = [
+                    { ID_AERONAVE: 'afb770a8', AERONAVE: 'RESCUE', NOMBRE: 'MAVERICK' },
+                    { ID_AERONAVE: 'df60b24d', AERONAVE: 'VIPER', NOMBRE: 'BUZZARD ATTACK' },
+                    { ID_AERONAVE: 'f86bcdaa', AERONAVE: 'ATLAS', NOMBRE: 'CARGOBOB' },
+                    { ID_AERONAVE: 'fd3755a6', AERONAVE: 'RAZOR', NOMBRE: 'FH-1 HUNTER' },
+                    { ID_AERONAVE: '3e7e72d0', AERONAVE: 'ODIN', NOMBRE: 'VALKIRIE' },
+                    { ID_AERONAVE: 'd80d96c6', AERONAVE: 'ZEUS', NOMBRE: 'F-160 RAIJU' },
+                    { ID_AERONAVE: '0a254e7d', AERONAVE: 'PHOENIX', NOMBRE: 'MILJET' }
+                ];
+                
+                displayAeronaves(aeronaves);
+            }, 1000);
+        }
+        
+        // Display aeronaves in the UI
+        function displayAeronaves(aeronaves) {
+            const container = document.getElementById('aeronavesList');
+            
+            if (aeronaves.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-fighter-jet"></i>
+                        <h3>No hay aeronaves registradas</h3>
+                        <p>Agrega la primera aeronave haciendo clic en el botón "Agregar Aeronave"</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            aeronaves.forEach(aeronave => {
+                html += `
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5>${aeronave.AERONAVE}</h5>
+                                <p>${aeronave.NOMBRE}</p>
+                                <div style="text-align: center; margin: 15px 0;">
+                                    <i class="fas fa-plane" style="font-size: 3rem; color: #ccc;"></i>
+                                </div>
+                                <div class="row">
+                                    <div class="col">
+                                        <button class="btn btn-secondary btn-block" onclick="editAeronave('${aeronave.ID_AERONAVE}')">Editar</button>
+                                    </div>
+                                    <div class="col">
+                                        <button class="btn btn-danger btn-block" onclick="deleteAeronave('${aeronave.ID_AERONAVE}')">Eliminar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Load libros data
+        function loadLibros() {
+            const container = document.getElementById('librosList');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            // In a real app, this would fetch data from Google Sheets
+            setTimeout(() => {
+                const libros = [
+                    { LIBRO: 'FZ-00005', AERONAVE: 'RESCUE', FECHA: '2025-10-04', PILOTO: 'DAVID TORO' },
+                    { LIBRO: 'FZ-00004', AERONAVE: 'VIPER', FECHA: '2025-10-03', PILOTO: 'THOMAS ESTRADA' },
+                    { LIBRO: 'FZ-00003', AERONAVE: 'ATLAS', FECHA: '2025-10-02', PILOTO: 'DAVID TORO' },
+                    { LIBRO: 'FZ-00002', AERONAVE: 'RAZOR', FECHA: '2025-10-01', PILOTO: 'THOMAS ESTRADA' },
+                    { LIBRO: 'FZ-00001', AERONAVE: 'ODIN', FECHA: '2025-09-30', PILOTO: 'DAVID TORO' }
+                ];
+                
+                displayLibros(libros);
+            }, 1000);
+        }
+        
+        // Display libros in the UI
+        function displayLibros(libros) {
+            const container = document.getElementById('librosList');
+            
+            if (libros.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-book"></i>
+                        <h3>No hay libros de vuelo registrados</h3>
+                        <p>Registra el primer libro de vuelo haciendo clic en el botón "Registrar Libro de Vuelo"</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Libro de Vuelo</th>
+                            <th>Aeronave</th>
+                            <th>Fecha</th>
+                            <th>Piloto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            libros.forEach(libro => {
+                html += `
+                    <tr>
+                        <td>${libro.LIBRO}</td>
+                        <td>${libro.AERONAVE}</td>
+                        <td>${libro.FECHA}</td>
+                        <td>${libro.PILOTO}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        // Load solicitudes data
+        function loadSolicitudes() {
+            const container = document.getElementById('solicitudesList');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            // In a real app, this would fetch data from Google Sheets
+            setTimeout(() => {
+                const solicitudes = [
+                    { SOLICITUD: 'AETC-00005', PILOTO: 'THOMAS ESTRADA', AERONAVE: 'ZEUS', FECHA: '2025-10-04', DISPONIBILIDAD: 'Lunes a Viernes 14:00-18:00' },
+                    { SOLICITUD: 'AETC-00004', PILOTO: 'DAVID TORO', AERONAVE: 'PHOENIX', FECHA: '2025-10-03', DISPONIBILIDAD: 'SOLICITUD TOMADA POR THOMAS ESTRADA' },
+                    { SOLICITUD: 'AETC-00003', PILOTO: 'THOMAS ESTRADA', AERONAVE: 'ODIN', FECHA: '2025-10-02', DISPONIBILIDAD: 'CERTIFICADO' },
+                    { SOLICITUD: 'AETC-00002', PILOTO: 'DAVID TORO', AERONAVE: 'ATLAS', FECHA: '2025-10-01', DISPONIBILIDAD: 'Fin de semana completo' },
+                    { SOLICITUD: 'AETC-00001', PILOTO: 'THOMAS ESTRADA', AERONAVE: 'VIPER', FECHA: '2025-09-30', DISPONIBILIDAD: 'CERTIFICADO' }
+                ];
+                
+                displaySolicitudes(solicitudes);
+            }, 1000);
+        }
+        
+        // Display solicitudes in the UI
+        function displaySolicitudes(solicitudes) {
+            const container = document.getElementById('solicitudesList');
+            
+            if (solicitudes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>No hay solicitudes de certificación</h3>
+                        <p>Crea la primera solicitud haciendo clic en el botón "Solicitar Certificación"</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Solicitud</th>
+                            <th>Piloto</th>
+                            <th>Aeronave</th>
+                            <th>Fecha</th>
+                            <th>Disponibilidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            solicitudes.forEach(solicitud => {
+                let badgeClass = 'badge-info';
+                let badgeText = 'PENDIENTE';
+                let actions = '<button class="btn btn-sm">Tomar Solicitud</button>';
+                
+                if (solicitud.DISPONIBILIDAD.includes('SOLICITUD TOMADA')) {
+                    badgeClass = 'badge-warning';
+                    badgeText = 'TOMADA';
+                    actions = '<button class="btn btn-sm btn-success">Certificar</button>';
+                } else if (solicitud.DISPONIBILIDAD === 'CERTIFICADO') {
+                    badgeClass = 'badge-success';
+                    badgeText = 'CERTIFICADO';
+                    actions = '-';
+                }
+                
+                html += `
+                    <tr>
+                        <td>${solicitud.SOLICITUD}</td>
+                        <td>${solicitud.PILOTO}</td>
+                        <td>${solicitud.AERONAVE}</td>
+                        <td>${solicitud.FECHA}</td>
+                        <td>
+                            <span class="badge ${badgeClass}">${badgeText}</span>
+                            ${solicitud.DISPONIBILIDAD !== 'CERTIFICADO' && !solicitud.DISPONIBILIDAD.includes('SOLICITUD TOMADA') ? 
+                              `<br><small>${solicitud.DISPONIBILIDAD}</small>` : ''}
+                        </td>
+                        <td>${actions}</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                    </tbody>
+                </table>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        // Load resumen data
+        function loadResumen() {
+            const container = document.getElementById('resumenContent');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            // In a real app, this would fetch data from Google Sheets
+            setTimeout(() => {
+                const resumen = {
+                    lider: 'DAVID TORO',
+                    fecha: '2025-10-04',
+                    mision: 'Proteger el espacio aéreo y proveer apoyo aéreo en operaciones militares.',
+                    vision: 'Ser la fuerza aérea más efectiva y tecnológicamente avanzada del continente.',
+                    tiempoTotal: '245:30',
+                    tiemposAeronaves: [
+                        { aeronave: 'RESCUE', tiempo: '85:15' },
+                        { aeronave: 'VIPER', tiempo: '67:20' },
+                        { aeronave: 'ATLAS', tiempo: '45:10' },
+                        { aeronave: 'RAZOR', tiempo: '25:35' },
+                        { aeronave: 'ODIN', tiempo: '12:45' },
+                        { aeronave: 'ZEUS', tiempo: '5:25' },
+                        { aeronave: 'PHOENIX', tiempo: '4:00' }
+                    ]
+                };
+                
+                displayResumen(resumen);
+            }, 1000);
+        }
+        
+        // Display resumen in the UI
+        function displayResumen(resumen) {
+            const container = document.getElementById('resumenContent');
+            
+            let tiemposHtml = '';
+            resumen.tiemposAeronaves.forEach(item => {
+                tiemposHtml += `
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-body" style="text-align: center;">
+                                <i class="fas fa-plane" style="font-size: 2rem; color: #ccc; margin-bottom: 10px;"></i>
+                                <h5>${item.aeronave}</h5>
+                                <h3>${item.tiempo}</h3>
+                                <p>Horas de vuelo</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = `
+                <div class="row">
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Líder Actual</h5>
+                            </div>
+                            <div class="card-body">
+                                <h4>${resumen.lider}</h4>
+                                <p>Desde: ${resumen.fecha}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5>Tiempo Total de Vuelo</h5>
+                            </div>
+                            <div class="card-body" style="text-align: center;">
+                                <h1 style="font-size: 3rem; color: var(--primary);">${resumen.tiempoTotal}</h1>
+                                <p>Horas</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5>Misión y Visión</h5>
+                    </div>
+                    <div class="card-body">
+                        <h6>Misión</h6>
+                        <p>${resumen.mision}</p>
+                        <h6 style="margin-top: 15px;">Visión</h6>
+                        <p>${resumen.vision}</p>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5>Tiempos por Aeronave</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            ${tiemposHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Load rangos data
+        function loadRangos() {
+            const container = document.getElementById('rangosList');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+            
+            // In a real app, this would fetch data from Google Sheets
+            setTimeout(() => {
+                const rangos = [
+                    { RANGOS: 'GENERAL DE LA FUERZA AEREA O-10W', ABREVIATURA: 'Gen Af' },
+                    { RANGOS: 'GENERAL O-10', ABREVIATURA: 'Gen' },
+                    { RANGOS: 'TENIENTE GENERAL O-9', ABREVIATURA: 'Lt Gen' },
+                    { RANGOS: 'MAYOR GENERAL O-8', ABREVIATURA: 'MajGen' },
+                    { RANGOS: 'BRIGADIER GENERAL O-7', ABREVIATURA: 'Brig Gen' },
+                    { RANGOS: 'CORONEL O-6', ABREVIATURA: 'Col' },
+                    { RANGOS: 'TENIENTE CORONEL O-5', ABREVIATURA: 'Lt Col' },
+                    { RANGOS: 'MAYOR O-4', ABREVIATURA: 'Maj' },
+                    { RANGOS: 'CAPITAN O-3', ABREVIATURA: 'Cpt' },
+                    { RANGOS: 'TENIENTE PRIMERO O-2', ABREVIATURA: '1st Lt' },
+                    { RANGOS: 'TENIENTE SEGUNDO O-1', ABREVIATURA: '2d Lt' },
+                    { RANGOS: 'SUBOFICIAL MAYOR DE LA FUERZA AEREA E-10', ABREVIATURA: 'CMSAF' },
+                    { RANGOS: 'SARGENTO MAESTRE DE LA FUERZA AEREA E-9', ABREVIATURA: 'CMSgt' },
+                    { RANGOS: 'SARGENTO MAESTRE MAYOR E-8', ABREVIATURA: 'SMSgt' },
+                    { RANGOS: 'SARGENTO MAESTRE E-7', ABREVIATURA: 'MSgt' },
+                    { RANGOS: 'SARGENTO TECNICO E-6', ABREVIATURA: 'TSgt' },
+                    { RANGOS: 'SARGENTO DE PERSONAL E-5', ABREVIATURA: 'SSgt' },
+                    { RANGOS: 'AVIADOR MAYOR E-4', ABREVIATURA: 'SrA' },
+                    { RANGOS: 'AVIADOR DE PRIMERA E-3', ABREVIATURA: 'A1C' },
+                    { RANGOS: 'AVIADOR E-2', ABREVIATURA: 'Amn' },
+                    { RANGOS: 'RECLUTA E-1', ABREVIATURA: 'Ab' }
+                ];
+                
+                displayRangos(rangos);
+            }, 1000);
+        }
+        
+        // Display rangos in the UI
+        function displayRangos(rangos) {
+            const container = document.getElementById('rangosList');
+            
+            if (rangos.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-star"></i>
+                        <h3>No hay rangos registrados</h3>
+                        <p>Agrega el primer rango haciendo clic en el botón "Agregar Rango"</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            rangos.forEach(rango => {
+                html += `
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-body" style="text-align: center;">
+                                <i class="fas fa-star" style="font-size: 2rem; color: #FFD700; margin-bottom: 10px;"></i>
+                                <h5>${rango.RANGOS}</h5>
+                                <p>${rango.ABREVIATURA}</p>
+                                <div class="row">
+                                    <div class="col">
+                                        <button class="btn btn-secondary btn-block btn-sm">Editar</button>
+                                    </div>
+                                    <div class="col">
+                                        <button class="btn btn-danger btn-block btn-sm">Eliminar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Show add piloto modal
+        function showAddPilotoModal() {
+            document.getElementById('pilotoModalTitle').textContent = 'Agregar Piloto';
+            document.getElementById('pilotoForm').reset();
+            document.getElementById('pilotoId').value = '';
+            document.getElementById('pilotoModal').classList.add('show');
+        }
+        
+        // Close piloto modal
+        function closePilotoModal() {
+            document.getElementById('pilotoModal').classList.remove('show');
+        }
+        
+        // Save piloto
+        function savePiloto() {
+            const form = document.getElementById('pilotoForm');
+            const formData = new FormData(form);
+            
+            // Validate form
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            // In a real app, this would send data to Google Sheets
+            // For demo, we'll just close the modal and show a success message
+            closePilotoModal();
+            alert('Piloto guardado exitosamente');
+            loadPilotos(); // Reload the list
+        }
+        
+        // Show add aeronave modal
+        function showAddAeronaveModal() {
+            document.getElementById('aeronaveModalTitle').textContent = 'Agregar Aeronave';
+            document.getElementById('aeronaveForm').reset();
+            document.getElementById('aeronaveId').value = '';
+            document.getElementById('aeronaveModal').classList.add('show');
+        }
+        
+        // Close aeronave modal
+        function closeAeronaveModal() {
+            document.getElementById('aeronaveModal').classList.remove('show');
+        }
+        
+        // Save aeronave
+        function saveAeronave() {
+            const form = document.getElementById('aeronaveForm');
+            const formData = new FormData(form);
+            
+            // Validate form
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            // In a real app, this would send data to Google Sheets
+            // For demo, we'll just close the modal and show a success message
+            closeAeronaveModal();
+            alert('Aeronave guardada exitosamente');
+            loadAeronaves(); // Reload the list
+        }
+        
+        // Show piloto profile
+        function showPilotoProfile(pilotoId) {
+            // In a real app, this would fetch piloto data from Google Sheets
+            // For demo, we'll use sample data
+            const piloto = {
+                ID_PILOTO: pilotoId,
+                PILOTO: pilotoId === 'a3a04422' ? 'DAVID TORO' : 'THOMAS ESTRADA',
+                EMAIL: pilotoId === 'a3a04422' ? 'david_toro@lsaf.gov.us' : 'thomas_estrada@lsaf.gov.us',
+                NUIM: pilotoId === 'a3a04422' ? '10-291992' : '15-200623',
+                RANGO: pilotoId === 'a3a04422' ? 'TENIENTE CORONEL O-5' : 'CAPITAN O-3',
+                ROL: pilotoId === 'a3a04422' ? 'ADMIN' : 'PILOTO',
+                ESTADO: 'ACTIVO',
+                INGRESO: pilotoId === 'a3a04422' ? '2024-12-01' : '2025-05-04'
             };
             
-            document.getElementById('pageTitle').textContent = titles[viewId] || 'LSAF';
+            document.getElementById('pilotoProfileTitle').textContent = `Perfil de ${piloto.PILOTO}`;
             
-            // Actualizar la navegación activa
-            document.querySelectorAll('.sidebar-menu a').forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            document.querySelector(`.sidebar-menu a[data-view="${viewId}"]`).classList.add('active');
-            
-            appState.currentView = viewId;
-        }
-
-        function showModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
-        }
-
-        function hideModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        function loadPilots() {
-            const pilotsList = document.getElementById('pilotsList');
-            pilotsList.innerHTML = '';
-            
-            demoData.pilots.forEach(pilot => {
-                const pilotCard = document.createElement('div');
-                pilotCard.className = 'pilot-card';
-                pilotCard.innerHTML = `
-                    <div class="pilot-rank">
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <div class="pilot-info">
-                        <div class="pilot-name">${pilot.name}</div>
-                        <div class="pilot-nuim">${pilot.nuim}</div>
-                    </div>
-                    <div class="badge ${pilot.status === 'ACTIVO' ? 'badge-success' : 'badge-danger'}">
-                        ${pilot.status}
-                    </div>
-                `;
-                
-                pilotCard.addEventListener('click', () => showPilotProfile(pilot.id));
-                pilotsList.appendChild(pilotCard);
-            });
-        }
-
-        function loadAircraft() {
-            const aircraftList = document.getElementById('aircraftList');
-            aircraftList.innerHTML = '';
-            
-            demoData.aircraft.forEach(aircraft => {
-                const aircraftCard = document.createElement('div');
-                aircraftCard.className = 'aircraft-card';
-                aircraftCard.innerHTML = `
-                    <div class="aircraft-image">
-                        <i class="fas fa-plane fa-3x"></i>
-                    </div>
-                    <div class="aircraft-info">
-                        <div class="aircraft-callsign">${aircraft.callsign}</div>
-                        <div class="aircraft-model">${aircraft.model}</div>
-                        <div class="btn-group" style="margin-top: 10px;">
-                            <button class="btn btn-primary btn-sm edit-aircraft" data-id="${aircraft.id}">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <button class="btn btn-danger btn-sm delete-aircraft" data-id="${aircraft.id}">
-                                <i class="fas fa-trash"></i> Eliminar
-                            </button>
+            document.getElementById('pilotoProfileContent').innerHTML = `
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Piloto</label>
+                            <div class="form-control" style="background: #f9f9f9;">${piloto.PILOTO}</div>
                         </div>
                     </div>
-                `;
-                
-                aircraftList.appendChild(aircraftCard);
-            });
-        }
-
-        function loadFlightLogs() {
-            const flightLogsTable = document.getElementById('flightLogsTable');
-            flightLogsTable.innerHTML = '';
-            
-            demoData.flightLogs.forEach(log => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${log.number}</td>
-                    <td>${log.aircraft}</td>
-                    <td>${log.date}</td>
-                    <td>${log.pilot}</td>
-                    <td>${log.totalTime}</td>
-                `;
-                flightLogsTable.appendChild(row);
-            });
-        }
-
-        function loadRequests() {
-            const requestsTable = document.getElementById('requestsTable');
-            requestsTable.innerHTML = '';
-            
-            demoData.requests.forEach(request => {
-                let statusBadge = '';
-                if (request.status === 'Certificado') {
-                    statusBadge = '<span class="badge badge-success">Certificado</span>';
-                } else if (request.status.includes('Tomada por')) {
-                    statusBadge = `<span class="badge badge-warning">${request.status}</span>`;
-                } else {
-                    statusBadge = '<span class="badge badge-danger">Pendiente</span>';
-                }
-                
-                let actions = '';
-                if (request.status === 'Pendiente') {
-                    actions = `<button class="btn btn-primary btn-sm take-request" data-id="${request.id}">Tomar Solicitud</button>`;
-                } else if (request.status.includes('Tomada por')) {
-                    actions = `<button class="btn btn-success btn-sm certify-request" data-id="${request.id}">Certificar</button>`;
-                } else {
-                    actions = '<span>Completado</span>';
-                }
-                
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${request.number}</td>
-                    <td>${request.pilot}</td>
-                    <td>${request.aircraft}</td>
-                    <td>${request.date}</td>
-                    <td>${request.availability}</td>
-                    <td>${statusBadge} ${actions}</td>
-                `;
-                requestsTable.appendChild(row);
-            });
-        }
-
-        function loadRanks() {
-            const ranksList = document.getElementById('ranksList');
-            ranksList.innerHTML = '';
-            
-            demoData.ranks.forEach(rank => {
-                const rankCard = document.createElement('div');
-                rankCard.className = 'aircraft-card';
-                rankCard.innerHTML = `
-                    <div class="aircraft-image">
-                        <i class="fas fa-star fa-3x"></i>
-                    </div>
-                    <div class="aircraft-info">
-                        <div class="aircraft-callsign">${rank.name}</div>
-                        <div class="aircraft-model">Escalafón: ${rank.scale}</div>
-                        <div class="btn-group" style="margin-top: 10px;">
-                            <button class="btn btn-primary btn-sm edit-rank" data-id="${rank.id}">
-                                <i class="fas fa-edit"></i> Editar
-                            </button>
-                            <button class="btn btn-danger btn-sm delete-rank" data-id="${rank.id}">
-                                <i class="fas fa-trash"></i> Eliminar
-                            </button>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>NUIM</label>
+                            <div class="form-control" style="background: #f9f9f9;">${piloto.NUIM}</div>
                         </div>
                     </div>
-                `;
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Rango</label>
+                            <div class="form-control" style="background: #f9f9f9;">${piloto.RANGO}</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <div class="form-control" style="background: #f9f9f9;">${piloto.EMAIL}</div>
+                        </div>
+                    </div>
+                </div>
                 
-                ranksList.appendChild(rankCard);
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5>Ficha del Piloto</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Información detallada del piloto...</p>
+                        <button class="btn btn-secondary">Editar Ficha</button>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5>Ascensos y Descensos</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Historial de cambios de rango...</p>
+                        <button class="btn btn-secondary">Añadir Ascenso/Descenso</button>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5>Libros de Vuelo Relacionados</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Libros de vuelo registrados por este piloto...</p>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5>Solicitudes Relacionadas</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>Solicitudes de certificación de este piloto...</p>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h5>Resumen de Tiempos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <h6>Tiempo Total de Vuelo</h6>
+                                <h3>125:30</h3>
+                            </div>
+                            <div class="col-6">
+                                <h6>Tiempo por Aeronave</h6>
+                                <ul>
+                                    <li>RESCUE: 45:20</li>
+                                    <li>VIPER: 35:15</li>
+                                    <li>ATLAS: 25:10</li>
+                                    <li>RAZOR: 15:25</li>
+                                    <li>ODIN: 4:20</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('pilotoProfileModal').classList.add('show');
+        }
+        
+        // Close piloto profile modal
+        function closePilotoProfileModal() {
+            document.getElementById('pilotoProfileModal').classList.remove('show');
+        }
+        
+        // Edit piloto profile
+        function editPilotoProfile() {
+            // This would open the edit piloto modal with the current data
+            document.getElementById('pilotoProfileModal').classList.remove('show');
+            showAddPilotoModal();
+            
+            // In a real app, we would populate the form with the current piloto data
+            // For demo, we'll just show the add form
+        }
+        
+        // Edit aeronave
+        function editAeronave(id) {
+            // This would open the edit aeronave modal with the current data
+            showAddAeronaveModal();
+            document.getElementById('aeronaveModalTitle').textContent = 'Editar Aeronave';
+            
+            // In a real app, we would populate the form with the current aeronave data
+            // For demo, we'll just show the add form
+        }
+        
+        // Delete aeronave
+        function deleteAeronave(id) {
+            if (confirm('¿Está seguro de que desea eliminar esta aeronave?')) {
+                // In a real app, this would delete the aeronave from Google Sheets
+                alert('Aeronave eliminada exitosamente');
+                loadAeronaves(); // Reload the list
+            }
+        }
+        
+        // Google Sheets API functions
+        
+        // Get piloto by email
+        function getPilotoByEmail(email) {
+            return new Promise((resolve, reject) => {
+                // In a real app, this would query the PILOTOS sheet
+                // For demo, we'll return sample data
+                setTimeout(() => {
+                    if (email === 'david_toro@lsaf.gov.us') {
+                        resolve({
+                            ID_PILOTO: 'a3a04422',
+                            PILOTO: 'DAVID TORO',
+                            EMAIL: 'david_toro@lsaf.gov.us',
+                            NUIM: '10-291992',
+                            RANGO: 'TENIENTE CORONEL O-5',
+                            ROL: 'ADMIN',
+                            ESTADO: 'ACTIVO',
+                            INGRESO: '2024-12-01'
+                        });
+                    } else if (email === 'thomas_estrada@lsaf.gov.us') {
+                        resolve({
+                            ID_PILOTO: '6a235914',
+                            PILOTO: 'THOMAS ESTRADA',
+                            EMAIL: 'thomas_estrada@lsaf.gov.us',
+                            NUIM: '15-200623',
+                            RANGO: 'CAPITAN O-3',
+                            ROL: 'PILOTO',
+                            ESTADO: 'ACTIVO',
+                            INGRESO: '2025-05-04'
+                        });
+                    } else {
+                        resolve(null);
+                    }
+                }, 500);
             });
         }
-
-        function showPilotProfile(pilotId) {
-            const pilot = demoData.pilots.find(p => p.id === pilotId);
-            if (pilot) {
-                showModal('pilotProfileModal');
-            }
+        
+        // Read data from a sheet
+        function readSheet(sheetName) {
+            return sheetsAPI.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: sheetName
+            }).then(response => {
+                return response.result.values;
+            });
         }
-
-        function calculateFlightTime() {
-            const takeoff = document.getElementById('flightLogTakeoff').value;
-            const landing = document.getElementById('flightLogLanding').value;
-            
-            if (takeoff && landing) {
-                const takeoffTime = new Date(takeoff);
-                const landingTime = new Date(landing);
-                
-                // Verificar si las fechas son válidas
-                if (landingTime <= takeoffTime) {
-                    document.getElementById('flightLogTotalTime').value = 'Fecha incorrecta';
-                    return;
+        
+        // Write data to a sheet
+        function writeSheet(sheetName, values) {
+            return sheetsAPI.spreadsheets.values.update({
+                spreadsheetId: SPREADSHEET_ID,
+                range: sheetName,
+                valueInputOption: 'RAW',
+                resource: {
+                    values: values
                 }
-                
-                const diffMs = landingTime - takeoffTime;
-                const diffHours = diffMs / (1000 * 60 * 60);
-                
-                document.getElementById('flightLogTotalTime').value = `${diffHours.toFixed(2)} horas`;
-            }
+            });
         }
-
-        function savePilot() {
-            const name = document.getElementById('pilotName').value;
-            const email = document.getElementById('pilotEmail').value;
-            const nuim = document.getElementById('pilotNUIM').value;
-            const joinDate = document.getElementById('pilotJoinDate').value;
-            const role = document.getElementById('pilotRole').value;
-            const status = document.getElementById('pilotStatus').value;
-            
-            // Validación básica
-            if (!name || !email || !nuim || !joinDate || !role) {
-                alert('Por favor, complete todos los campos obligatorios.');
-                return;
-            }
-            
-            // En una implementación real, aquí enviaríamos los datos a Google Sheets
-            alert(`Piloto ${name} guardado correctamente.`);
-            hideModal('addPilotModal');
-            document.getElementById('addPilotForm').reset();
-            
-            // Recargar la lista de pilotos
-            loadPilots();
-        }
-
-        function saveAircraft() {
-            const callsign = document.getElementById('aircraftCallsign').value;
-            const model = document.getElementById('aircraftModel').value;
-            
-            if (!callsign || !model) {
-                alert('Por favor, complete todos los campos obligatorios.');
-                return;
-            }
-            
-            alert(`Aeronave ${callsign} guardada correctamente.`);
-            hideModal('addAircraftModal');
-            document.getElementById('addAircraftForm').reset();
-            
-            loadAircraft();
-        }
-
-        function saveFlightLog() {
-            const takeoff = document.getElementById('flightLogTakeoff').value;
-            const landing = document.getElementById('flightLogLanding').value;
-            const totalTime = document.getElementById('flightLogTotalTime').value;
-            
-            if (totalTime === 'Fecha incorrecta') {
-                alert('Las fechas de despegue y aterrizaje no son válidas. Verifique que la hora de aterrizaje sea posterior a la de despegue.');
-                return;
-            }
-            
-            if (!takeoff || !landing) {
-                alert('Por favor, complete las fechas de despegue y aterrizaje.');
-                return;
-            }
-            
-            alert('Libro de vuelo registrado correctamente.');
-            hideModal('addFlightLogModal');
-            document.getElementById('addFlightLogForm').reset();
-            
-            loadFlightLogs();
-        }
-
-        function saveRequest() {
-            if (!appState.agreedToCharter) {
-                alert('Debe estar de acuerdo con la carta de compromiso.');
-                return;
-            }
-            
-            const aircraft = document.getElementById('requestAircraft').value;
-            const availability = document.getElementById('requestAvailability').value;
-            
-            if (!aircraft || !availability) {
-                alert('Por favor, complete todos los campos obligatorios.');
-                return;
-            }
-            
-            alert('Solicitud enviada correctamente.');
-            hideModal('addRequestModal');
-            document.getElementById('addRequestForm').reset();
-            document.getElementById('saveRequestBtn').disabled = true;
-            appState.agreedToCharter = false;
-            
-            loadRequests();
-        }
-
-        function saveRank() {
-            const name = document.getElementById('rankName').value;
-            const scale = document.getElementById('rankScale').value;
-            
-            if (!name || !scale) {
-                alert('Por favor, complete todos los campos obligatorios.');
-                return;
-            }
-            
-            alert(`Rango ${name} guardado correctamente.`);
-            hideModal('addRankModal');
-            document.getElementById('addRankForm').reset();
-            
-            loadRanks();
+        
+        // Append data to a sheet
+        function appendToSheet(sheetName, values) {
+            return sheetsAPI.spreadsheets.values.append({
+                spreadsheetId: SPREADSHEET_ID,
+                range: sheetName,
+                valueInputOption: 'RAW',
+                resource: {
+                    values: [values]
+                }
+            });
         }
     </script>
 </body>
