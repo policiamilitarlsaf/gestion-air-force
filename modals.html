@@ -1,0 +1,90 @@
+<!-- Modal Agregar Piloto -->
+<div id="addPilotModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Agregar Piloto</h3>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="addPilotForm">
+        <div class="form-group">
+          <label for="pilotName">Piloto:</label>
+          <input type="text" id="pilotName" name="Piloto" required>
+        </div>
+        <div class="form-group">
+          <label for="pilotEmail">Email:</label>
+          <input type="email" id="pilotEmail" name="Email" required 
+                 placeholder="nombre_apellido@lsaf.gov.us">
+        </div>
+        <div class="form-group">
+          <label for="pilotNUIM">NUIM:</label>
+          <input type="text" id="pilotNUIM" name="NUIM" required>
+        </div>
+        <div class="form-group">
+          <label for="pilotJoinDate">Fecha de Ingreso:</label>
+          <input type="date" id="pilotJoinDate" name="FechaIngreso" required>
+        </div>
+        <div class="form-group">
+          <label for="pilotRole">Rol:</label>
+          <select id="pilotRole" name="Rol" required>
+            <option value="">Seleccionar Rol</option>
+            <option value="ADMIN">ADMIN</option>
+            <option value="INSTRUCTOR">INSTRUCTOR</option>
+            <option value="PILOTO">PILOTO</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pilotStatus">Estado:</label>
+          <select id="pilotStatus" name="Estado" required>
+            <option value="ACTIVO">ACTIVO</option>
+            <option value="ARCHIVADO">ARCHIVADO</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="pilotRank">Rango:</label>
+          <input type="text" id="pilotRank" name="Rango" required>
+        </div>
+        <div class="form-group">
+          <label for="pilotImage">Imagen:</label>
+          <input type="file" id="pilotImage" name="Imagen" accept="image/*">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button type="button" class="btn btn-primary" onclick="savePilot()">Guardar Piloto</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Agregar Aeronave -->
+<div id="addAircraftModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Agregar Aeronave</h3>
+      <button class="modal-close">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="addAircraftForm">
+        <div class="form-group">
+          <label for="aircraftCallsign">Callsign:</label>
+          <input type="text" id="aircraftCallsign" name="Callsign" required>
+        </div>
+        <div class="form-group">
+          <label for="aircraftModel">Modelo:</label>
+          <input type="text" id="aircraftModel" name="Modelo" required>
+        </div>
+        <div class="form-group">
+          <label for="aircraftImage">Imagen:</label>
+          <input type="file" id="aircraftImage" name="Imagen" accept="image/*">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button type="button" class="btn btn-primary" onclick="saveAircraft()">Guardar Aeronave</button>
+    </div>
+  </div>
+</div>
+
+<!-- Agregar más modales según sea necesario -->
