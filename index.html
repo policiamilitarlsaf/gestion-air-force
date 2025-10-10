@@ -342,6 +342,15 @@
             margin: 20px auto;
             text-align: center;
         }
+        
+        .debug-info {
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #6c757d;
+        }
     </style>
 </head>
 <body>
@@ -371,6 +380,7 @@
             </div>
             
             <div class="message" id="message"></div>
+            <div id="debugInfo" class="debug-info" style="display: none;"></div>
         </div>
         
         <div id="pilotosSection" class="pilotos-container">
@@ -402,13 +412,11 @@
     </div>
 
     <script>
-        let pilotosData = []; // Para almacenar los datos de todos los pilotos
-        let imagenesData = []; // Para almacenar datos de la hoja IMAGENES
-        let insigniasData = []; // Para almacenar datos de la hoja INSIGNIAS
-        let pilotoActual = null; // Para almacenar el piloto actualmente seleccionado
+        let pilotosData = [];
+        let pilotoActual = null;
         
-        // URL base corregida
-        const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_Itfu5gw6pLsckurmp9eUa7gyH_uPTb3v-dvgJUjFvgUQSK-lm_rx6E9cqz--dIf79cOPUHwscq-q/pub?output=csv';
+        // URL corregida
+        const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_Itfu5gw6pLsckurmp9eUa7gyH_uPTb3v-dvgJUjFvgUQSK-lm_rx6E9cqz--dIf79cOPUHwscq-q/pub?output=csv';
         
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -419,6 +427,7 @@
             // Mostrar loading
             document.getElementById('loading').style.display = 'block';
             document.getElementById('message').style.display = 'none';
+            document.getElementById('debugInfo').style.display = 'none';
             
             // Verificar credenciales
             verificarCredenciales(email, password);
@@ -449,12 +458,27 @@
         });
         
         function verificarCredenciales(email, password) {
-            // Obtener datos de la hoja PILOTOS
-            fetch(baseUrl)
-            .then(response => response.text())
+            // Intentar cargar los datos con manejo de errores mejorado
+            fetch(sheetUrl)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                return response.text();
+            })
             .then(csvData => {
+                console.log("Datos CSV recibidos:", csvData);
+                
+                // Mostrar información de depuración
+                document.getElementById('debugInfo').innerHTML = `
+                    <strong>Información de depuración:</strong><br>
+                    - Longitud de datos: ${csvData.length} caracteres<br>
+                    - Primeros 200 caracteres: ${csvData.substring(0, 200)}...
+                `;
+                document.getElementById('debugInfo').style.display = 'block';
+                
                 // Procesar datos CSV
-                pilotosData = procesarCSV(csvData, 'pilotos');
+                pilotosData = procesarCSV(csvData);
                 
                 // Verificar si las credenciales coinciden
                 let credencialesValidas = false;
@@ -496,104 +520,98 @@
                 document.getElementById('loading').style.display = 'none';
                 
                 const message = document.getElementById('message');
-                message.textContent = 'Error al conectar con la base de datos';
+                message.textContent = 'Error al conectar con la base de datos. Verifica la consola para más detalles.';
                 message.className = 'message error';
                 message.style.display = 'block';
+                
+                // Mostrar información de error para depuración
+                document.getElementById('debugInfo').innerHTML = `
+                    <strong>Error de conexión:</strong><br>
+                    - Mensaje: ${error.message}<br>
+                    - URL utilizada: ${sheetUrl}<br>
+                    - Verifica que la hoja esté publicada correctamente
+                `;
+                document.getElementById('debugInfo').style.display = 'block';
             });
         }
         
-        function procesarCSV(csvText, tipo) {
+        function procesarCSV(csvText) {
             const lines = csvText.split('\n');
-            const datos = [];
+            const usuarios = [];
+            
+            // Verificar que hay líneas
+            if (lines.length < 2) {
+                throw new Error('El archivo CSV está vacío o no tiene suficientes líneas');
+            }
             
             // La primera línea es el encabezado
             const headers = lines[0].split(',').map(header => 
                 header.replace(/"/g, '').trim().toLowerCase()
             );
             
-            if (tipo === 'pilotos') {
-                // Buscar índices de las columnas necesarias para PILOTOS
-                const emailIndex = headers.indexOf('email');
-                const passIndex = headers.indexOf('pass');
-                const pilotoIndex = headers.indexOf('piloto');
-                const nuimIndex = headers.indexOf('nuim');
-                const rangoIndex = headers.indexOf('rango');
-                const ingresoIndex = headers.indexOf('ingreso');
+            console.log("Encabezados encontrados:", headers);
+            
+            // Buscar índices de las columnas necesarias
+            const emailIndex = headers.indexOf('email');
+            const passIndex = headers.indexOf('pass');
+            const pilotoIndex = headers.indexOf('piloto');
+            const nuimIndex = headers.indexOf('nuim');
+            const rangoIndex = headers.indexOf('rango');
+            const ingresoIndex = headers.indexOf('ingreso');
+            
+            // Si no encontramos las columnas básicas, mostrar error
+            if (emailIndex === -1 || passIndex === -1) {
+                throw new Error('No se encontraron las columnas EMAIL y PASS en la hoja de cálculo');
+            }
+            
+            // Procesar cada línea (empezando desde la segunda)
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '') continue;
                 
-                // Si no encontramos las columnas, mostrar error
-                if (emailIndex === -1 || passIndex === -1) {
-                    throw new Error('No se encontraron las columnas EMAIL y PASS en la hoja de cálculo');
-                }
+                // Manejar comillas en el CSV
+                const cells = parseCSVLine(lines[i]);
                 
-                // Procesar cada línea (empezando desde la segunda)
-                for (let i = 1; i < lines.length; i++) {
-                    if (lines[i].trim() === '') continue;
-                    
-                    const cells = lines[i].split(',');
-                    
-                    // Crear objeto usuario con todos los datos
-                    const usuario = {
-                        email: cells[emailIndex].replace(/"/g, '').trim(),
-                        pass: cells[passIndex].replace(/"/g, '').trim(),
-                        piloto: pilotoIndex !== -1 ? cells[pilotoIndex].replace(/"/g, '').trim() : '',
-                        nuim: nuimIndex !== -1 ? cells[nuimIndex].replace(/"/g, '').trim() : '',
-                        rango: rangoIndex !== -1 ? cells[rangoIndex].replace(/"/g, '').trim() : '',
-                        ingreso: ingresoIndex !== -1 ? cells[ingresoIndex].replace(/"/g, '').trim() : ''
-                    };
-                    
-                    datos.push(usuario);
-                }
-            } else if (tipo === 'imagenes') {
-                // Buscar índices de las columnas necesarias para IMAGENES
-                const emailIndex = headers.indexOf('email');
-                const imagenIndex = headers.indexOf('imagen');
-                const fechaNacimientoIndex = headers.indexOf('fecha_nacimiento');
-                const tipoSangreIndex = headers.indexOf('tipo de sangre');
-                const nacionalidadIndex = headers.indexOf('nacionalidad');
-                const escuadronIndex = headers.indexOf('escuadron');
+                // Crear objeto usuario con todos los datos
+                const usuario = {
+                    email: cells[emailIndex] ? cells[emailIndex].replace(/"/g, '').trim() : '',
+                    pass: cells[passIndex] ? cells[passIndex].replace(/"/g, '').trim() : '',
+                    piloto: pilotoIndex !== -1 && cells[pilotoIndex] ? cells[pilotoIndex].replace(/"/g, '').trim() : '',
+                    nuim: nuimIndex !== -1 && cells[nuimIndex] ? cells[nuimIndex].replace(/"/g, '').trim() : '',
+                    rango: rangoIndex !== -1 && cells[rangoIndex] ? cells[rangoIndex].replace(/"/g, '').trim() : '',
+                    ingreso: ingresoIndex !== -1 && cells[ingresoIndex] ? cells[ingresoIndex].replace(/"/g, '').trim() : ''
+                };
                 
-                // Procesar cada línea (empezando desde la segunda)
-                for (let i = 1; i < lines.length; i++) {
-                    if (lines[i].trim() === '') continue;
-                    
-                    const cells = lines[i].split(',');
-                    
-                    // Crear objeto con datos de imagen
-                    const imagenData = {
-                        email: emailIndex !== -1 ? cells[emailIndex].replace(/"/g, '').trim() : '',
-                        imagen: imagenIndex !== -1 ? cells[imagenIndex].replace(/"/g, '').trim() : '',
-                        fecha_nacimiento: fechaNacimientoIndex !== -1 ? cells[fechaNacimientoIndex].replace(/"/g, '').trim() : '',
-                        tipo_sangre: tipoSangreIndex !== -1 ? cells[tipoSangreIndex].replace(/"/g, '').trim() : '',
-                        nacionalidad: nacionalidadIndex !== -1 ? cells[nacionalidadIndex].replace(/"/g, '').trim() : '',
-                        escuadron: escuadronIndex !== -1 ? cells[escuadronIndex].replace(/"/g, '').trim() : ''
-                    };
-                    
-                    datos.push(imagenData);
-                }
-            } else if (tipo === 'insignias') {
-                // Buscar índices de las columnas necesarias para INSIGNIAS
-                const emailIndex = headers.indexOf('email');
-                const fechaIndex = headers.indexOf('fecha');
-                const insigniaIndex = headers.indexOf('insignia');
-                
-                // Procesar cada línea (empezando desde la segunda)
-                for (let i = 1; i < lines.length; i++) {
-                    if (lines[i].trim() === '') continue;
-                    
-                    const cells = lines[i].split(',');
-                    
-                    // Crear objeto con datos de insignia
-                    const insigniaData = {
-                        email: emailIndex !== -1 ? cells[emailIndex].replace(/"/g, '').trim() : '',
-                        fecha: fechaIndex !== -1 ? cells[fechaIndex].replace(/"/g, '').trim() : '',
-                        insignia: insigniaIndex !== -1 ? cells[insigniaIndex].replace(/"/g, '').trim() : ''
-                    };
-                    
-                    datos.push(insigniaData);
+                // Solo agregar usuarios que tengan email
+                if (usuario.email) {
+                    usuarios.push(usuario);
                 }
             }
             
-            return datos;
+            console.log("Usuarios procesados:", usuarios);
+            return usuarios;
+        }
+        
+        // Función mejorada para parsear líneas CSV que puedan contener comas dentro de comillas
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            result.push(current);
+            return result;
         }
         
         function cargarListaPilotos(pilotos) {
@@ -665,65 +683,17 @@
         }
         
         function cargarFichaPiloto(piloto) {
-            // Mostrar loading
-            document.getElementById('loading').style.display = 'block';
+            // Por ahora, vamos a usar los datos que ya tenemos
+            // En una implementación futura, podríamos cargar datos adicionales
             
-            // Obtener datos de las hojas adicionales
-            // Nota: Como estamos usando la misma URL para todo el documento,
-            // necesitamos cargar todos los datos de una vez y luego filtrar
-            // según el tipo de datos que necesitemos
-            fetch(baseUrl)
-            .then(response => response.text())
-            .then(csvData => {
-                // Procesar datos para IMAGENES e INSIGNIAS
-                // Esto es un poco complejo porque estamos usando la misma URL
-                // para todas las hojas. En un caso real, necesitaríamos URLs separadas
-                // para cada hoja, o una forma de identificar de qué hoja vienen los datos
-                
-                // Por ahora, vamos a asumir que todos los datos están en la misma hoja
-                // y vamos a procesarlos según las columnas disponibles
-                
-                // Procesar datos para IMAGENES
-                imagenesData = procesarCSV(csvData, 'imagenes');
-                
-                // Procesar datos para INSIGNIAS
-                insigniasData = procesarCSV(csvData, 'insignias');
-                
-                // Ocultar loading
-                document.getElementById('loading').style.display = 'none';
-                
-                // Mostrar ficha del piloto
-                document.getElementById('pilotoDetailSection').style.display = 'none';
-                document.getElementById('fichaPilotoSection').style.display = 'block';
-                
-                mostrarFichaCompleta(piloto);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('loading').style.display = 'none';
-                
-                const message = document.getElementById('message');
-                message.textContent = 'Error al cargar datos adicionales';
-                message.className = 'message error';
-                message.style.display = 'block';
-            });
+            document.getElementById('pilotoDetailSection').style.display = 'none';
+            document.getElementById('fichaPilotoSection').style.display = 'block';
+            
+            mostrarFichaCompleta(piloto);
         }
         
         function mostrarFichaCompleta(piloto) {
             const fichaContent = document.getElementById('fichaPilotoContent');
-            
-            // Buscar datos del piloto en la hoja IMAGENES
-            const datosImagen = imagenesData.find(item => 
-                item.email && item.email.toLowerCase() === piloto.email.toLowerCase()
-            );
-            
-            // Buscar insignias del piloto en la hoja INSIGNIAS
-            const insigniasPiloto = insigniasData.filter(item => 
-                item.email && item.email.toLowerCase() === piloto.email.toLowerCase()
-            );
-            
-            // Ordenar insignias por fecha (más reciente primero)
-            insigniasPiloto.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
             
             fichaContent.innerHTML = `
                 <div class="ficha-piloto-content">
@@ -731,10 +701,7 @@
                         <h3 class="ficha-section-title">Datos Personales</h3>
                         
                         <div class="ficha-imagen">
-                            ${datosImagen && datosImagen.imagen ? 
-                                `<img src="${datosImagen.imagen}" alt="Foto de ${piloto.piloto}">` : 
-                                '<p class="no-data">Sin imagen disponible</p>'
-                            }
+                            <p class="no-data">Función de imágenes en desarrollo</p>
                         </div>
                         
                         <div class="ficha-datos">
@@ -754,50 +721,20 @@
                             </div>
                             
                             <div class="ficha-dato">
-                                <div class="ficha-dato-label">Fecha de Nacimiento</div>
-                                <div class="ficha-dato-valor">${datosImagen && datosImagen.fecha_nacimiento ? datosImagen.fecha_nacimiento : 'N/A'}</div>
+                                <div class="ficha-dato-label">Ingreso</div>
+                                <div class="ficha-dato-valor">${piloto.ingreso || 'N/A'}</div>
                             </div>
                             
                             <div class="ficha-dato">
-                                <div class="ficha-dato-label">Tipo de Sangre</div>
-                                <div class="ficha-dato-valor">${datosImagen && datosImagen.tipo_sangre ? datosImagen.tipo_sangre : 'N/A'}</div>
-                            </div>
-                            
-                            <div class="ficha-dato">
-                                <div class="ficha-dato-label">Nacionalidad</div>
-                                <div class="ficha-dato-valor">${datosImagen && datosImagen.nacionalidad ? datosImagen.nacionalidad : 'N/A'}</div>
-                            </div>
-                        </div>
-                        
-                        <div class="ficha-dato" style="margin-top: 15px;">
-                            <div class="ficha-dato-label">Escuadrón</div>
-                            <div class="ficha-dato-valor">
-                                ${datosImagen && datosImagen.escuadron ? 
-                                    `<img src="${datosImagen.escuadron}" alt="Escuadrón" style="max-width: 100px;">` : 
-                                    'N/A'
-                                }
+                                <div class="ficha-dato-label">Email</div>
+                                <div class="ficha-dato-valor">${piloto.email || 'N/A'}</div>
                             </div>
                         </div>
                     </div>
                     
                     <div class="ficha-ascensos">
                         <h3 class="ficha-section-title">Ascensos y Descensos</h3>
-                        
-                        ${insigniasPiloto.length > 0 ? 
-                            insigniasPiloto.map(insignia => `
-                                <div class="ascenso-item">
-                                    <div class="ascenso-fecha">${insignia.fecha || 'N/A'}</div>
-                                    <div class="ascenso-insignia">
-                                        ${insignia.insignia ? 
-                                            `<img src="${insignia.insignia}" alt="Insignia">` : 
-                                            ''
-                                        }
-                                        <span>${insignia.insignia ? 'Insignia otorgada' : 'Cambio de rango'}</span>
-                                    </div>
-                                </div>
-                            `).join('') : 
-                            '<p class="no-data">No hay registros de ascensos/descensos</p>'
-                        }
+                        <p class="no-data">Función de ascensos/descensos en desarrollo</p>
                     </div>
                 </div>
             `;
