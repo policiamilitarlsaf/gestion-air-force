@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Autenticación de Pilotos</title>
+    <title>Sistema de Autenticación</title>
     <style>
         * {
             margin: 0;
@@ -131,8 +131,8 @@
         
         <form id="loginForm">
             <div class="form-group">
-                <label for="usuario">Usuario</label>
-                <input type="text" id="usuario" name="usuario" required>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
             </div>
             
             <div class="form-group">
@@ -155,7 +155,7 @@
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const usuario = document.getElementById('usuario').value;
+            const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
             // Mostrar loading
@@ -163,11 +163,11 @@
             document.getElementById('message').style.display = 'none';
             
             // Verificar credenciales
-            verificarCredenciales(usuario, password);
+            verificarCredenciales(email, password);
         });
         
-        function verificarCredenciales(usuario, password) {
-            // URL de la hoja PILOTOS en formato CSV
+        function verificarCredenciales(email, password) {
+            // URL pública de la hoja PILOTOS
             const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_Itfu5gw6pLsckurmp9eUa7gyH_uPTb3v-dvgJUjFvgUQSK-lm_rx6E9cqz--dIf79cOPUHwscq-q/pub?gid=0&single=true&output=csv';
             
             // Obtener datos de la hoja
@@ -180,11 +180,10 @@
                 // Verificar si las credenciales coinciden
                 let credencialesValidas = false;
                 
-                for (let i = 0; i < usuarios.length; i++) {
-                    // Verificar si el usuario y contraseña coinciden
-                    if (usuarios[i].PILOTOS && usuarios[i].PASS && 
-                        usuarios[i].PILOTOS.trim().toLowerCase() === usuario.trim().toLowerCase() && 
-                        usuarios[i].PASS.trim() === password) {
+                for (let usuario of usuarios) {
+                    if (usuario.email && usuario.pass && 
+                        usuario.email.trim().toLowerCase() === email.trim().toLowerCase() && 
+                        usuario.pass.trim() === password) {
                         credencialesValidas = true;
                         break;
                     }
@@ -202,9 +201,6 @@
                     
                     // Limpiar formulario
                     document.getElementById('loginForm').reset();
-                    
-                    // Aquí podrías redirigir a otra página o mostrar más opciones
-                    // window.location.href = 'dashboard.html';
                 } else {
                     message.textContent = 'Datos incorrectos';
                     message.className = 'message error';
@@ -223,31 +219,39 @@
         }
         
         function procesarCSV(csvText) {
-            // Dividir el CSV en líneas
             const lines = csvText.split('\n');
-            const result = [];
+            const usuarios = [];
             
-            // Obtener los encabezados (primera línea)
-            const headers = lines[0].split(',').map(header => header.replace(/"/g, '').trim());
+            // La primera línea es el encabezado
+            const headers = lines[0].split(',').map(header => 
+                header.replace(/"/g, '').trim().toLowerCase()
+            );
             
-            // Procesar cada línea de datos
-            for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
-                
-                const obj = {};
-                const currentLine = lines[i].split(',');
-                
-                // Asignar cada valor a su encabezado correspondiente
-                for (let j = 0; j < headers.length; j++) {
-                    // Eliminar comillas y espacios en blanco
-                    let value = currentLine[j] ? currentLine[j].replace(/"/g, '').trim() : '';
-                    obj[headers[j]] = value;
-                }
-                
-                result.push(obj);
+            // Buscar índices de las columnas EMAIL y PASS
+            const emailIndex = headers.indexOf('email');
+            const passIndex = headers.indexOf('pass');
+            
+            // Si no encontramos las columnas, mostrar error
+            if (emailIndex === -1 || passIndex === -1) {
+                throw new Error('No se encontraron las columnas EMAIL y PASS en la hoja de cálculo');
             }
             
-            return result;
+            // Procesar cada línea (empezando desde la segunda)
+            for (let i = 1; i < lines.length; i++) {
+                if (lines[i].trim() === '') continue;
+                
+                const cells = lines[i].split(',');
+                
+                // Crear objeto usuario con email y pass
+                const usuario = {
+                    email: cells[emailIndex].replace(/"/g, '').trim(),
+                    pass: cells[passIndex].replace(/"/g, '').trim()
+                };
+                
+                usuarios.push(usuario);
+            }
+            
+            return usuarios;
         }
     </script>
 </body>
