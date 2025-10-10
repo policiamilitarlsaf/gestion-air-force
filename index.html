@@ -630,143 +630,148 @@
         
         // URLs de las hojas
         const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_Itfu5gw6pLsckurmp9eUa7gyH_uPTb3v-dvgJUjFvgUQSK-lm_rx6E9cqz--dIf79cOPUHwscq-q/pub?output=csv';
-        const pilotosUrl = baseUrl + '&gid=0';
-        const aeronavesUrl = baseUrl + '&gid=1';
-        const librosUrl = baseUrl + '&gid=2';
-        const solicitudesUrl = baseUrl + '&gid=3';
+        const pilotosUrl = baseUrl + '&gid=0&single=true';
+        const aeronavesUrl = baseUrl + '&gid=1&single=true';
+        const librosUrl = baseUrl + '&gid=2&single=true';
+        const solicitudesUrl = baseUrl + '&gid=3&single=true';
         
-        // Elementos del DOM
-        const loginSection = document.getElementById('loginSection');
-        const mainMenu = document.getElementById('mainMenu');
-        const pilotosSection = document.getElementById('pilotosSection');
-        const pilotoDetailSection = document.getElementById('pilotoDetailSection');
-        const fichaPilotoSection = document.getElementById('fichaPilotoSection');
-        const aeronavesSection = document.getElementById('aeronavesSection');
-        const librosSection = document.getElementById('librosSection');
-        const formularioLibroSection = document.getElementById('formularioLibroSection');
-        const solicitudesSection = document.getElementById('solicitudesSection');
-        const formularioSolicitudSection = document.getElementById('formularioSolicitudSection');
-        const detalleSolicitudSection = document.getElementById('detalleSolicitudSection');
-        
-        // Event Listeners
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Inicializar la aplicación cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM cargado, inicializando event listeners...');
             
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+            // Event Listeners
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                // Mostrar loading
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('message').style.display = 'none';
+                
+                // Verificar credenciales
+                verificarCredenciales(email, password);
+            });
             
-            // Mostrar loading
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('message').style.display = 'none';
+            document.getElementById('logoutBtn').addEventListener('click', function() {
+                // Volver a la pantalla de login
+                mostrarSeccion(loginSection);
+                document.getElementById('loginForm').reset();
+                usuarioActual = null;
+            });
             
-            // Verificar credenciales
-            verificarCredenciales(email, password);
-        });
-        
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            // Volver a la pantalla de login
-            mostrarSeccion(loginSection);
-            document.getElementById('loginForm').reset();
-            usuarioActual = null;
-        });
-        
-        document.getElementById('pilotosMenuBtn').addEventListener('click', function() {
-            cargarPilotos();
-        });
-        
-        document.getElementById('aeronavesMenuBtn').addEventListener('click', function() {
-            cargarAeronaves();
-        });
-        
-        document.getElementById('librosMenuBtn').addEventListener('click', function() {
-            cargarLibros();
-        });
-        
-        document.getElementById('solicitudesMenuBtn').addEventListener('click', function() {
-            cargarSolicitudes();
-        });
-        
-        document.getElementById('backToMenuFromPilotosBtn').addEventListener('click', function() {
-            mostrarSeccion(mainMenu);
-        });
-        
-        document.getElementById('backToMenuFromAeronavesBtn').addEventListener('click', function() {
-            mostrarSeccion(mainMenu);
-        });
-        
-        document.getElementById('backToMenuFromLibrosBtn').addEventListener('click', function() {
-            mostrarSeccion(mainMenu);
-        });
-        
-        document.getElementById('backToMenuFromSolicitudesBtn').addEventListener('click', function() {
-            mostrarSeccion(mainMenu);
-        });
-        
-        document.getElementById('backToListBtn').addEventListener('click', function() {
-            mostrarSeccion(pilotosSection);
-        });
-        
-        document.getElementById('fichaPilotoBtn').addEventListener('click', function() {
-            cargarFichaPiloto(pilotoActual);
-        });
-        
-        document.getElementById('backToDetailBtn').addEventListener('click', function() {
-            mostrarSeccion(pilotoDetailSection);
-        });
-        
-        document.getElementById('nuevoLibroBtn').addEventListener('click', function() {
-            mostrarFormularioLibro();
-        });
-        
-        document.getElementById('backToLibrosBtn').addEventListener('click', function() {
-            mostrarSeccion(librosSection);
-        });
-        
-        document.getElementById('nuevaSolicitudBtn').addEventListener('click', function() {
-            mostrarFormularioSolicitud();
-        });
-        
-        document.getElementById('backToSolicitudesBtn').addEventListener('click', function() {
-            mostrarSeccion(solicitudesSection);
-        });
-        
-        document.getElementById('backToSolicitudesListBtn').addEventListener('click', function() {
-            mostrarSeccion(solicitudesSection);
-        });
-        
-        document.getElementById('tomarSolicitudBtn').addEventListener('click', function() {
-            tomarSolicitud();
-        });
-        
-        // Event listeners para calcular tiempo total
-        document.getElementById('libroDespegue').addEventListener('change', calcularTiempoTotal);
-        document.getElementById('libroAterrizaje').addEventListener('change', calcularTiempoTotal);
-        
-        // Event listener para enviar formulario de libro
-        document.getElementById('libroForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            enviarLibro();
-        });
-        
-        // Event listener para enviar formulario de solicitud
-        document.getElementById('solicitudForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            enviarSolicitud();
+            document.getElementById('pilotosMenuBtn').addEventListener('click', function() {
+                console.log('Botón PILOTOS clickeado');
+                cargarPilotos();
+            });
+            
+            document.getElementById('aeronavesMenuBtn').addEventListener('click', function() {
+                console.log('Botón AERONAVES clickeado');
+                cargarAeronaves();
+            });
+            
+            document.getElementById('librosMenuBtn').addEventListener('click', function() {
+                console.log('Botón LIBROS DE VUELO clickeado');
+                cargarLibros();
+            });
+            
+            document.getElementById('solicitudesMenuBtn').addEventListener('click', function() {
+                console.log('Botón SOLICITUDES clickeado');
+                cargarSolicitudes();
+            });
+            
+            document.getElementById('backToMenuFromPilotosBtn').addEventListener('click', function() {
+                mostrarSeccion(mainMenu);
+            });
+            
+            document.getElementById('backToMenuFromAeronavesBtn').addEventListener('click', function() {
+                mostrarSeccion(mainMenu);
+            });
+            
+            document.getElementById('backToMenuFromLibrosBtn').addEventListener('click', function() {
+                mostrarSeccion(mainMenu);
+            });
+            
+            document.getElementById('backToMenuFromSolicitudesBtn').addEventListener('click', function() {
+                mostrarSeccion(mainMenu);
+            });
+            
+            document.getElementById('backToListBtn').addEventListener('click', function() {
+                mostrarSeccion(pilotosSection);
+            });
+            
+            document.getElementById('fichaPilotoBtn').addEventListener('click', function() {
+                cargarFichaPiloto(pilotoActual);
+            });
+            
+            document.getElementById('backToDetailBtn').addEventListener('click', function() {
+                mostrarSeccion(pilotoDetailSection);
+            });
+            
+            document.getElementById('nuevoLibroBtn').addEventListener('click', function() {
+                console.log('Botón NUEVO LIBRO clickeado');
+                mostrarFormularioLibro();
+            });
+            
+            document.getElementById('backToLibrosBtn').addEventListener('click', function() {
+                mostrarSeccion(librosSection);
+            });
+            
+            document.getElementById('nuevaSolicitudBtn').addEventListener('click', function() {
+                console.log('Botón NUEVA SOLICITUD clickeado');
+                mostrarFormularioSolicitud();
+            });
+            
+            document.getElementById('backToSolicitudesBtn').addEventListener('click', function() {
+                mostrarSeccion(solicitudesSection);
+            });
+            
+            document.getElementById('backToSolicitudesListBtn').addEventListener('click', function() {
+                mostrarSeccion(solicitudesSection);
+            });
+            
+            document.getElementById('tomarSolicitudBtn').addEventListener('click', function() {
+                tomarSolicitud();
+            });
+            
+            // Event listeners para calcular tiempo total
+            document.getElementById('libroDespegue').addEventListener('change', calcularTiempoTotal);
+            document.getElementById('libroAterrizaje').addEventListener('change', calcularTiempoTotal);
+            
+            // Event listener para enviar formulario de libro
+            document.getElementById('libroForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                enviarLibro();
+            });
+            
+            // Event listener para enviar formulario de solicitud
+            document.getElementById('solicitudForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                enviarSolicitud();
+            });
+            
+            console.log('Todos los event listeners inicializados correctamente');
         });
         
         // Función para mostrar una sección específica y ocultar las demás
         function mostrarSeccion(seccion) {
+            console.log('Mostrando sección:', seccion.id);
             const secciones = [
                 loginSection, mainMenu, pilotosSection, pilotoDetailSection, 
                 fichaPilotoSection, aeronavesSection, librosSection, 
                 formularioLibroSection, solicitudesSection, formularioSolicitudSection,
                 detalleSolicitudSection
             ];
-            secciones.forEach(sec => sec.style.display = 'none');
+            secciones.forEach(sec => {
+                sec.style.display = 'none';
+            });
             seccion.style.display = 'block';
         }
         
         function verificarCredenciales(email, password) {
+            console.log('Verificando credenciales para:', email);
+            
             fetch(pilotosUrl)
             .then(response => {
                 if (!response.ok) {
@@ -775,8 +780,11 @@
                 return response.text();
             })
             .then(csvData => {
+                console.log('Datos de pilotos recibidos correctamente');
+                
                 // Procesar datos CSV
                 pilotosData = procesarCSVPilotos(csvData);
+                console.log('Pilotos procesados:', pilotosData.length);
                 
                 // Verificar si las credenciales coinciden
                 let credencialesValidas = false;
@@ -804,6 +812,7 @@
                     
                     // Guardar usuario actual
                     usuarioActual = usuarioEncontrado;
+                    console.log('Usuario autenticado:', usuarioActual.piloto);
                     
                     // Ocultar login y mostrar menú principal
                     setTimeout(() => {
@@ -911,6 +920,7 @@
         }
         
         function cargarPilotos() {
+            console.log('Cargando pilotos...');
             mostrarSeccion(pilotosSection);
             
             const pilotosGrid = document.getElementById('pilotosGrid');
@@ -943,9 +953,12 @@
                     pilotosGrid.appendChild(card);
                 }
             });
+            
+            console.log('Pilotos cargados correctamente');
         }
         
         function cargarAeronaves() {
+            console.log('Cargando aeronaves...');
             // Mostrar loading
             document.getElementById('loading').style.display = 'block';
             
@@ -959,6 +972,7 @@
             .then(csvData => {
                 // Procesar datos CSV
                 aeronavesData = procesarCSVAeronaves(csvData);
+                console.log('Aeronaves procesadas:', aeronavesData.length);
                 
                 // Ocultar loading
                 document.getElementById('loading').style.display = 'none';
@@ -991,6 +1005,8 @@
                         aeronavesGrid.appendChild(card);
                     }
                 });
+                
+                console.log('Aeronaves cargadas correctamente');
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -1004,6 +1020,7 @@
         }
         
         function cargarLibros() {
+            console.log('Cargando libros...');
             // Mostrar loading
             document.getElementById('loading').style.display = 'block';
             
@@ -1017,6 +1034,7 @@
             .then(csvData => {
                 // Procesar datos CSV
                 librosData = procesarCSVLibros(csvData);
+                console.log('Libros procesados:', librosData.length);
                 
                 // Ocultar loading
                 document.getElementById('loading').style.display = 'none';
@@ -1049,6 +1067,8 @@
                     
                     librosGrid.appendChild(card);
                 });
+                
+                console.log('Libros cargados correctamente');
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -1062,6 +1082,7 @@
         }
         
         function cargarSolicitudes() {
+            console.log('Cargando solicitudes...');
             // Mostrar loading
             document.getElementById('loading').style.display = 'block';
             
@@ -1075,6 +1096,7 @@
             .then(csvData => {
                 // Procesar datos CSV
                 solicitudesData = procesarCSVSolicitudes(csvData);
+                console.log('Solicitudes procesadas:', solicitudesData.length);
                 
                 // Ocultar loading
                 document.getElementById('loading').style.display = 'none';
@@ -1113,6 +1135,8 @@
                     
                     solicitudesGrid.appendChild(card);
                 });
+                
+                console.log('Solicitudes cargadas correctamente');
             })
             .catch(error => {
                 console.error('Error:', error);
