@@ -407,6 +407,9 @@
         let insigniasData = []; // Para almacenar datos de la hoja INSIGNIAS
         let pilotoActual = null; // Para almacenar el piloto actualmente seleccionado
         
+        // URL base corregida
+        const baseUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_Itfu5gw6pLsckurmp9eUa7gyH_uPTb3v-dvgJUjFvgUQSK-lm_rx6E9cqz--dIf79cOPUHwscq-q/pub?output=csv';
+        
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -446,11 +449,8 @@
         });
         
         function verificarCredenciales(email, password) {
-            // URL pública de la hoja PILOTOS
-            const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_Itfu5gw6pLsckurmp9eUa7gyH_uPTb3v-dvgJUjFvgUQSK-lm_rx6E9cqz--dIf79cOPUHwscq-q/pub?output=csv';
-            
-            // Obtener datos de la hoja
-            fetch(sheetUrl)
+            // Obtener datos de la hoja PILOTOS
+            fetch(baseUrl)
             .then(response => response.text())
             .then(csvData => {
                 // Procesar datos CSV
@@ -668,19 +668,26 @@
             // Mostrar loading
             document.getElementById('loading').style.display = 'block';
             
-            // URLs para las hojas adicionales
-            const imagenesUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_Itfu5gw6pLsckurmp9eUa7gyH_uPTb3v-dvgJUjFvgUQSK-lm_rx6E9cqz--dIf79cOPUHwscq-q/pub?output=csv';
-            const insigniasUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_Itfu5gw6pLsckurmp9eUa7gyH_uPTb3v-dvgJUjFvgUQSK-lm_rx6E9cqz--dIf79cOPUHwscq-q/pub?output=csv';
-            
-            // Obtener datos de ambas hojas
-            Promise.all([
-                fetch(imagenesUrl).then(response => response.text()),
-                fetch(insigniasUrl).then(response => response.text())
-            ])
-            .then(([imagenesCSV, insigniasCSV]) => {
-                // Procesar datos
-                imagenesData = procesarCSV(imagenesCSV, 'imagenes');
-                insigniasData = procesarCSV(insigniasCSV, 'insignias');
+            // Obtener datos de las hojas adicionales
+            // Nota: Como estamos usando la misma URL para todo el documento,
+            // necesitamos cargar todos los datos de una vez y luego filtrar
+            // según el tipo de datos que necesitemos
+            fetch(baseUrl)
+            .then(response => response.text())
+            .then(csvData => {
+                // Procesar datos para IMAGENES e INSIGNIAS
+                // Esto es un poco complejo porque estamos usando la misma URL
+                // para todas las hojas. En un caso real, necesitaríamos URLs separadas
+                // para cada hoja, o una forma de identificar de qué hoja vienen los datos
+                
+                // Por ahora, vamos a asumir que todos los datos están en la misma hoja
+                // y vamos a procesarlos según las columnas disponibles
+                
+                // Procesar datos para IMAGENES
+                imagenesData = procesarCSV(csvData, 'imagenes');
+                
+                // Procesar datos para INSIGNIAS
+                insigniasData = procesarCSV(csvData, 'insignias');
                 
                 // Ocultar loading
                 document.getElementById('loading').style.display = 'none';
