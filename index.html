@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Autenticación</title>
+    <title>Sistema de Autenticación de Pilotos</title>
     <style>
         * {
             margin: 0;
@@ -167,35 +167,24 @@
         });
         
         function verificarCredenciales(usuario, password) {
-            // IDs de las hojas de Google Sheets
-            const sheetId = '1yMJKgt3UsY064UVrYqhsMdkKqHNsFe2W76tiHhZAh6Q';
-            const pilotosSheet = 'PILOTOS';
-            const passSheet = 'PASS';
+            // URL de la hoja PILOTOS en formato CSV
+            const sheetUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS_Itfu5gw6pLsckurmp9eUa7gyH_uPTb3v-dvgJUjFvgUQSK-lm_rx6E9cqz--dIf79cOPUHwscq-q/pub?gid=0&single=true&output=csv';
             
-            // Construir URLs para obtener datos de las hojas
-            const pilotosUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${pilotosSheet}`;
-            const passUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${passSheet}`;
-            
-            // Obtener datos de ambas hojas
-            Promise.all([
-                fetch(pilotosUrl).then(response => response.text()),
-                fetch(passUrl).then(response => response.text())
-            ])
-            .then(([pilotosData, passData]) => {
-                // Procesar datos de PILOTOS
-                const pilotos = procesarCSV(pilotosData);
-                
-                // Procesar datos de PASS
-                const passwords = procesarCSV(passData);
+            // Obtener datos de la hoja
+            fetch(sheetUrl)
+            .then(response => response.text())
+            .then(csvData => {
+                // Procesar datos CSV
+                const usuarios = procesarCSV(csvData);
                 
                 // Verificar si las credenciales coinciden
                 let credencialesValidas = false;
                 
-                // Asumimos que los datos están alineados por fila
-                for (let i = 0; i < pilotos.length; i++) {
-                    if (pilotos[i] && passwords[i] && 
-                        pilotos[i].trim().toLowerCase() === usuario.trim().toLowerCase() && 
-                        passwords[i].trim() === password) {
+                for (let i = 0; i < usuarios.length; i++) {
+                    // Verificar si el usuario y contraseña coinciden
+                    if (usuarios[i].PILOTOS && usuarios[i].PASS && 
+                        usuarios[i].PILOTOS.trim().toLowerCase() === usuario.trim().toLowerCase() && 
+                        usuarios[i].PASS.trim() === password) {
                         credencialesValidas = true;
                         break;
                     }
@@ -213,6 +202,9 @@
                     
                     // Limpiar formulario
                     document.getElementById('loginForm').reset();
+                    
+                    // Aquí podrías redirigir a otra página o mostrar más opciones
+                    // window.location.href = 'dashboard.html';
                 } else {
                     message.textContent = 'Datos incorrectos';
                     message.className = 'message error';
@@ -231,19 +223,31 @@
         }
         
         function procesarCSV(csvText) {
-            // Procesar datos CSV simples (una columna)
+            // Dividir el CSV en líneas
             const lines = csvText.split('\n');
-            const data = [];
+            const result = [];
             
-            for (let i = 0; i < lines.length; i++) {
-                // Eliminar comillas y espacios en blanco
-                const value = lines[i].replace(/"/g, '').trim();
-                if (value) {
-                    data.push(value);
+            // Obtener los encabezados (primera línea)
+            const headers = lines[0].split(',').map(header => header.replace(/"/g, '').trim());
+            
+            // Procesar cada línea de datos
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                const obj = {};
+                const currentLine = lines[i].split(',');
+                
+                // Asignar cada valor a su encabezado correspondiente
+                for (let j = 0; j < headers.length; j++) {
+                    // Eliminar comillas y espacios en blanco
+                    let value = currentLine[j] ? currentLine[j].replace(/"/g, '').trim() : '';
+                    obj[headers[j]] = value;
                 }
+                
+                result.push(obj);
             }
             
-            return data;
+            return result;
         }
     </script>
 </body>
